@@ -4,10 +4,12 @@ package org.kevoree.modeling.java2typescript;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
+import com.intellij.psi.javadoc.PsiDocComment;
+import com.intellij.psi.javadoc.PsiDocTag;
+import org.kevoree.modeling.java2typescript.translators.NativeTsTranslator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -19,6 +21,12 @@ public class TypeHelper {
 
     public static String printType(PsiType element, TranslationContext ctx, boolean withGenericParams, boolean explicitType, boolean avoidNativeOptim) {
         String result = element.getPresentableText();
+
+        if (result.equals("Throwable") || result.equals("Exception") || result.equals("RuntimeException") || result.equals("IndexOutOfBoundsException")) {
+            return "Error";
+        }
+
+
         if (objects.contains(result)) {
             return "any";
         } else if (primitiveNumbers.contains(result) || objectNumbers.contains(result)) {
@@ -45,6 +53,7 @@ public class TypeHelper {
         } else if (element instanceof PsiArrayType) {
             PsiArrayType typedElement = (PsiArrayType) element;
             String partialResult = printType(typedElement.getComponentType(), ctx, true, false, true);
+            /*
             if (typedElement.getComponentType() instanceof PsiClassReferenceType) {
                 PsiClass resolvedClass = ((PsiClassReferenceType) typedElement.getComponentType()).resolve();
                 if (resolvedClass != null) {
@@ -54,63 +63,55 @@ public class TypeHelper {
                         return result;
                     }
                 }
-            }
+            }*/
             result = partialResult + "[]";
             return result;
         } else if (element instanceof PsiClassReferenceType) {
-            PsiClass resolvedClass = ((PsiClassReferenceType) element).resolve();
+
+            PsiClassReferenceType elementClassRefType = ((PsiClassReferenceType) element);
+            PsiClass resolvedClass = elementClassRefType.resolve();
+
             if (resolvedClass != null) {
-                if (isCallbackClass(resolvedClass) && !explicitType) {
-                    PsiMethod method = resolvedClass.getAllMethods()[0];
-                    PsiParameter[] parameters = method.getParameterList().getParameters();
-                    String[] methodParameters = new String[parameters.length];
-                    for (int i = 0; i < methodParameters.length; i++) {
-                        PsiType parameterType = parameters[i].getType();
-                        for (int j = 0; j < resolvedClass.getTypeParameters().length; j++) {
-                            if (resolvedClass.getTypeParameters()[j].getName().equals(parameterType.getPresentableText())) {
-                                if (((PsiClassReferenceType) element).getParameters().length <= j) {
-                                    parameterType = null;
-                                } else {
-                                    parameterType = ((PsiClassReferenceType) element).getParameters()[j];
-                                }
+                String qualifiedName = resolvedClass.getQualifiedName();
+                if (qualifiedName != null) {
+                    result = resolvedClass.getQualifiedName();
+                }
+                if (withGenericParams) {
+                    PsiTypeParameter[] typeParameters = resolvedClass.getTypeParameters();
+                    PsiType[] referenceParameters = elementClassRefType.getParameters();
+                    if (typeParameters.length > 0) {
+                        String[] generics = new String[typeParameters.length];
+                        for (int i = 0; i < typeParameters.length; i++) {
+                            if (referenceParameters.length > i) {
+                                generics[i] = printType(referenceParameters[i], ctx);//((PsiClassReferenceType)).resolve().getQualifiedName();
+                            } else {
+                                generics[i] = "any";
                             }
                         }
-                        if (parameterType == null) {
-                            methodParameters[i] = parameters[i].getName() + " : any";
-                        } else {
-                            methodParameters[i] = parameters[i].getName() + " : " + printType(parameterType, ctx);
-                        }
-
+                        result += "<" + String.join(", ", generics) + ">";
                     }
-                    result = "(" + String.join(", ", methodParameters) + ") => " + printType(method.getReturnType(), ctx);
-                    return result;
-                } else {
-                    String qualifiedName = resolvedClass.getQualifiedName();
-                    if (qualifiedName != null) {
-                        result = resolvedClass.getQualifiedName();
-                    }
-                    if (resolvedClass.getTypeParameters().length > 0) {
-                        String[] generics = new String[resolvedClass.getTypeParameters().length];
+                    /*
+                    if (elementClassRefType.getParameters().length > 0) {
+                        String[] generics = new String[elementClassRefType.getParameters().length];
                         Arrays.fill(generics, "any");
-                        if (withGenericParams) {
-                            result += "<" + String.join(", ", generics) + ">";
-                        }
+                        result += "<" + String.join(", ", generics) + ">";
                     }
+                    */
                 }
             } else {
-                String tryJavaUtil = javaTypes.get(((PsiClassReferenceType) element).getClassName());
+                String tryJavaUtil = javaTypes.get(elementClassRefType.getClassName());
                 if (tryJavaUtil != null) {
                     result = tryJavaUtil;
                 } else {
-                    result = ((PsiClassReferenceType) element).getReference().getQualifiedName();
+                    result = elementClassRefType.getReference().getQualifiedName();
                 }
-                if (((PsiClassReferenceType) element).getParameterCount() > 0) {
-                    String[] generics = new String[((PsiClassReferenceType) element).getParameterCount()];
-                    PsiType[] genericTypes = ((PsiClassReferenceType) element).getParameters();
-                    for (int i = 0; i < genericTypes.length; i++) {
-                        generics[i] = printType(genericTypes[i], ctx);
-                    }
-                    if (withGenericParams) {
+                if (withGenericParams) {
+                    if (elementClassRefType.getParameterCount() > 0) {
+                        String[] generics = new String[elementClassRefType.getParameterCount()];
+                        PsiType[] genericTypes = elementClassRefType.getParameters();
+                        for (int i = 0; i < genericTypes.length; i++) {
+                            generics[i] = printType(genericTypes[i], ctx);
+                        }
                         result += "<" + String.join(", ", generics) + ">";
                     }
                 }
@@ -130,7 +131,25 @@ public class TypeHelper {
         if (clazz == null) {
             return false;
         }
-        return clazz.isInterface() && clazz.getAllMethods().length == 1;
+        if (clazz.isInterface() &&
+                clazz.getAllFields().length == 0 &&
+                clazz.getAllMethods().length == 1) {
+            PsiDocComment comment = clazz.getDocComment();
+            if (comment != null) {
+                PsiDocTag[] tags = comment.getTags();
+                for (PsiDocTag tag : tags) {
+                    if (tag.getName().equals(NativeTsTranslator.TAG) &&
+                            tag.getValueElement() != null &&
+                            tag.getValueElement().getText().equals(NativeTsTranslator.TAG_VAL_TS_CALLBACK)) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            return false;
+        }
+
+        return false;
     }
 
     public static String primitiveStaticCall(String clazz) {
@@ -148,6 +167,9 @@ public class TypeHelper {
     public static final HashMap<String, String> javaTypes = new HashMap<String, String>();
 
     static {
+
+        javaTypes.put("System", "java.lang.System");
+
         javaTypes.put("AtomicInteger", "java.util.concurrent.atomic.AtomicInteger");
         javaTypes.put("AtomicLong", "java.util.concurrent.atomic.AtomicLong");
         javaTypes.put("AtomicReference", "java.util.concurrent.atomic.AtomicReference");

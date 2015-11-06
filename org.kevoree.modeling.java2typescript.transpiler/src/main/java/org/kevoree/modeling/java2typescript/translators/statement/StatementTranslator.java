@@ -40,6 +40,8 @@ public class StatementTranslator {
             SwitchLabelStatementTranslator.translate((PsiSwitchLabelStatement) statement, ctx);
         } else if (statement instanceof PsiDeclarationStatement) {
             DeclarationStatementTranslator.translate((PsiDeclarationStatement) statement, ctx);
+        } else if (statement instanceof PsiExpressionListStatement) {
+            ExpressionListStatementTranslator.translate((PsiExpressionListStatement) statement, ctx);
         }
     }
 

@@ -1,84 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.kevoree.modeling</groupId>
-  <artifactId>org.kevoree.modeling.java2typescript.runtime</artifactId>
-  <name>Kevoree :: Modeling :: Java2TypeScript :: Runtime</name>
-
-  <parent>
-    <artifactId>org.kevoree.modeling.java2typescript.root</artifactId>
     <groupId>org.kevoree.modeling</groupId>
-    <version>39-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+    <artifactId>org.kevoree.modeling.java2typescript.runtime</artifactId>
+    <name>Kevoree :: Modeling :: Java2TypeScript :: Runtime</name>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <id>Compile TypeScript: global</id>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <exec dir="${project.basedir}/src/main/ts/global" executable="node" failonerror="true">
-                  <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js --outDir ../../../../target/classes/global -d src/java.ts src/junit.ts"/>
-                </exec>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>Compile TypeScript: global-test</id>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <exec dir="${project.basedir}/src/test/ts/global-test" executable="node" failonerror="true">
-                  <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js --outDir ../../../../target/test-classes/global-test src/test.ts ../../../../target/classes/global/java.d.ts ../../../../target/classes/global/junit.d.ts"/>
-                </exec>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
+    <parent>
+        <artifactId>org.kevoree.modeling.java2typescript.root</artifactId>
+        <groupId>org.kevoree.modeling</groupId>
+        <version>47-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-          <execution>
-            <id>Compile TypeScript: umd</id>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <exec dir="${project.basedir}/src/main/ts/umd" executable="node" failonerror="true">
-                  <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js --module umd --outDir ../../../../target/classes/umd src/java.ts src/junit.ts"/>
-                </exec>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>Compile TypeScript: umd-test</id>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <exec dir="${project.basedir}/src/test/ts/umd-test" executable="node" failonerror="true">
-                  <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js --module commonjs --outDir ../../../../target/test-classes/umd-test src/test.ts ../../../main/ts/umd/src/java.d.ts ../../../main/ts/umd/src/junit.d.ts"/>
-                </exec>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>Compile TypeScript: global</id>
+                        <phase>compile</phase>
+                        <configuration>
+                            <tasks>
+                                <exec dir="/home/leiko/.nvm/versions/node/v5.0.0/bin" executable="node" failonerror="true">
+                                    <arg line="/home/leiko/.nvm/versions/node/v5.0.0/lib/node_modules/typescript/lib/tsc.js --outDir ${project.build.outputDirectory} -d ${project.build.sourceDirectory}/../resources/java.ts ${project.build.sourceDirectory}/../resources/junit.ts" />
+                                </exec>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>Compile TypeScript: global-test</id>
+                        <phase>compile</phase>
+                        <configuration>
+                            <tasks>
+                                <exec dir="${project.basedir}/src/test/ts" executable="node" failonerror="true">
+                                    <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js --outDir ../../../target/test-classes test.ts ../../../target/classes/java.d.ts ../../../target/classes/junit.d.ts" />
+                                </exec>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                    <!--
+                    <execution>
+                      <id>Compile TypeScript: umd</id>
+                      <phase>compile</phase>
+                      <configuration>
+                        <tasks>
+                          <exec dir="${project.basedir}/src/main/ts/umd" executable="node" failonerror="true">
+                            <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js -module umd -outDir ../../../../target/classes/umd src/java.ts src/junit.ts" />
+                          </exec>
+                        </tasks>
+                      </configuration>
+                      <goals>
+                        <goal>run</goal>
+                      </goals>
+                    </execution>
+                    <execution>
+                      <id>Compile TypeScript: umd-test</id>
+                      <phase>compile</phase>
+                      <configuration>
+                        <tasks>
+                          <exec dir="${project.basedir}/src/test/ts/umd-test" executable="node" failonerror="true">
+                            <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js -module commonjs -outDir ../../../../target/test-classes/umd-test src/test.ts ../../../main/ts/umd/src/java.d.ts ../../../main/ts/umd/src/junit.d.ts" />
+                          </exec>
+                        </tasks>
+                      </configuration>
+                      <goals>
+                        <goal>run</goal>
+                      </goals>
+                    </execution>
+                    -->
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

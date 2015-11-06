@@ -16,9 +16,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-/**
- * Created by duke on 18/03/15.
- */
 @Mojo(name = "extract", defaultPhase = LifecyclePhase.PROCESS_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class ExtractDependencies extends AbstractMojo {
 
@@ -60,10 +57,20 @@ public class ExtractDependencies extends AbstractMojo {
                         isExclude = isExclude || entry.getName().matches(excludes[i]);
                     }
                 }
-                if(!isExclude){
+                if (!isExclude) {
                     getLog().info("Extracting " + entry.getName());
                     if (entry.getName().endsWith(".js") || entry.getName().endsWith(".d.ts")) {
-                        unzipEntry(zipfile, entry, outputDir);
+                        if (
+                                entry.getName().equals("java.ts") ||
+                                        entry.getName().equals("java.d.ts") ||
+                                        entry.getName().equals("java.js") ||
+                                        entry.getName().equals("junit.d.ts") ||
+                                        entry.getName().equals("junit.ts") ||
+                                        entry.getName().equals("junit.js")) {
+
+                        } else {
+                            unzipEntry(zipfile, entry, outputDir);
+                        }
                     }
                 }
             }

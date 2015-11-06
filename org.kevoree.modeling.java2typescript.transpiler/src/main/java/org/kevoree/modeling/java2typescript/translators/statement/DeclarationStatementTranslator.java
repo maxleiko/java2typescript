@@ -9,7 +9,13 @@ import org.kevoree.modeling.java2typescript.TranslationContext;
 public class DeclarationStatementTranslator {
 
     public static void translate(PsiDeclarationStatement stmt, TranslationContext ctx) {
-        for (PsiElement element1 : stmt.getDeclaredElements()) {
+        for (int i = 0; i < stmt.getDeclaredElements().length; i++) {
+
+            if(i > 0) {
+                ctx.append(", ");
+            }
+
+            PsiElement element1 = stmt.getDeclaredElements()[i];
             if (element1 instanceof PsiStatement) {
                 StatementTranslator.translate((PsiStatement) element1, ctx);
             } else if (element1 instanceof PsiLocalVariable) {

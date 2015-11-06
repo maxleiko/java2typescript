@@ -7,10 +7,11 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class TSCRunner {
 
-    public static void run(File src, File target, File[] libraries, boolean copyLibDTs) throws Exception {
+    public static void run(File src, File target, File[] libraries, boolean copyLibDTs, String moduleType) throws Exception {
         IRuntimeConfig runtimeConfig = (new NodejsRuntimeConfigBuilder()).defaults().build();
         NodejsProcess node = null;
         ArrayList<String> paramsCol = new ArrayList<String>();
@@ -32,6 +33,7 @@ public class TSCRunner {
         }
 
         File targetTSCBIN = new File(target, "tsc.js");
+
         Files.copy(TSCRunner.class.getClassLoader().getResourceAsStream("tsc.js"), targetTSCBIN.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         File targetLIBD = null;
@@ -51,8 +53,11 @@ public class TSCRunner {
 
         paramsCol.add("--outDir");
         paramsCol.add(target.getAbsolutePath());
-
         paramsCol.add("-d");
+        if (moduleType != null) {
+            paramsCol.add("--module");
+            paramsCol.add(moduleType);
+        }
 
         NodejsConfig nodejsConfig = new NodejsConfig(NodejsVersion.Main.V0_10, targetTSCBIN.getAbsolutePath(), paramsCol, target.getAbsolutePath());
         NodejsStarter runtime = new NodejsStarter(runtimeConfig);
@@ -61,19 +66,19 @@ public class TSCRunner {
             node = e.start();
             int retVal = node.waitFor();
             if (retVal != 0) {
-                throw new Exception("There were TypeScript compilation errors.");
+                throw new Exception("There were TypeScript compilation errors. "/*+ Arrays.toString(paramsCol.toArray())*/);
             }
         } catch (InterruptedException var11) {
             var11.printStackTrace();
         } finally {
-            if (node != null) {
-                node.stop();
-            }
             if (targetTSCBIN != null) {
                 targetTSCBIN.delete();
             }
             if (targetLIBD != null) {
                 targetLIBD.delete();
+            }
+            if (node != null) {
+                node.stop();
             }
         }
     }

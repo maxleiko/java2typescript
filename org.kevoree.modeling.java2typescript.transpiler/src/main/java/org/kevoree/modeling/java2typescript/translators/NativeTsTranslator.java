@@ -15,6 +15,8 @@ public class NativeTsTranslator {
 
     public static final String TAG_VAL_TS = "ts";
 
+    public static final String TAG_VAL_TS_CALLBACK = "ts_callback";
+
     public static void translate(PsiDocComment comment, TranslationContext ctx) {
         PsiDocTag[] tags = comment.getTags();
         for (PsiDocTag tag : tags) {

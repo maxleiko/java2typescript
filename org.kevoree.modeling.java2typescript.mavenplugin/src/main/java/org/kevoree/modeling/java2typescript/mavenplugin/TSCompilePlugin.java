@@ -43,6 +43,9 @@ public class TSCompilePlugin extends AbstractMojo {
     @Parameter
     private File[] libraries;
 
+    @Parameter
+    private String moduleType = null;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!outputClasses.exists()) {
@@ -69,12 +72,12 @@ public class TSCompilePlugin extends AbstractMojo {
                     }
                     writer.flush();
                     writer.close();
-                    String basePath = f.getAbsolutePath().replace(inputTS.getAbsolutePath(),"");
-                    if(basePath.startsWith(File.separator)){
+                    String basePath = f.getAbsolutePath().replace(inputTS.getAbsolutePath(), "");
+                    if (basePath.startsWith(File.separator)) {
                         basePath = basePath.substring(1);
                     }
-                    File alreadyTs = new File(outputClasses,basePath);
-                    if(alreadyTs.exists()){
+                    File alreadyTs = new File(outputClasses, basePath);
+                    if (alreadyTs.exists()) {
                         alreadyTs.delete();
                     }
                 }
@@ -90,20 +93,38 @@ public class TSCompilePlugin extends AbstractMojo {
         }
 
         File[] libs;
-        if(libraries == null){
+        if (libraries == null) {
             libs = new File[1];
             libs[0] = jsdeps;
         } else {
-            libs = new File[libraries.length+1];
-            for(int i=0;i<libraries.length;i++){
+            libs = new File[libraries.length + 1];
+            for (int i = 0; i < libraries.length; i++) {
                 libs[i] = libraries[i];
             }
             libs[libraries.length] = jsdeps;
         }
         try {
-            TSCRunner.run(outputTempJS, outputClasses, libs, true);
+            TSCRunner.run(outputTempJS, outputClasses, libs, true, moduleType);
         } catch (Exception e) {
             throw new MojoExecutionException("TypeScript compilation failed !", e);
+        }
+
+        File packageJSON = new File(outputClasses, "package.json");
+        if (packageJSON.exists()) {
+            try {
+                updateCONTENT(packageJSON, project);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            packageJSON = new File(inputTS, "package.json");
+            if (packageJSON.exists()) {
+                try {
+                    updateCONTENT(packageJSON, project);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -114,7 +135,17 @@ public class TSCompilePlugin extends AbstractMojo {
                 ZipEntry entry = (ZipEntry) e.nextElement();
                 if (entry.getName().endsWith(".js") || entry.getName().endsWith(".d.ts")) {
                     if (!entry.getName().equals("tsc.js") && !entry.getName().equals("lib.d.ts")) {
-                        unzipEntry(zipfile, entry, outputDir);
+                        if (
+                                entry.getName().equals("java.ts") ||
+                                        entry.getName().equals("java.d.ts") ||
+                                        entry.getName().equals("java.js") ||
+                                        entry.getName().equals("junit.d.ts") ||
+                                        entry.getName().equals("junit.ts") ||
+                                        entry.getName().equals("junit.js")) {
+
+                        } else {
+                            unzipEntry(zipfile, entry, outputDir);
+                        }
                     }
                 }
             }
@@ -144,6 +175,28 @@ public class TSCompilePlugin extends AbstractMojo {
 
     private void createDir(File dir) {
         if (!dir.mkdirs()) throw new RuntimeException("Can not create dir " + dir);
+    }
+
+
+    public static void updateCONTENT(File descriptor, MavenProject project)
+            throws IOException {
+
+        FileInputStream inputStream = new FileInputStream(descriptor);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length = 0;
+        while ((length = inputStream.read(buffer)) != -1) {
+            baos.write(buffer, 0, length);
+        }
+        String content = new String(baos.toByteArray());
+        content = content.replace("VERSION_TO_REPLACE", project.getVersion()).replace("NAME_TO_REPLACE", project.getArtifactId());
+        ;
+
+        FileWriter writer = new FileWriter(descriptor);
+        writer.write(content);
+        writer.flush();
+        writer.close();
+
     }
 
 }
