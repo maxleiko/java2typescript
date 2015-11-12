@@ -70,9 +70,6 @@ public class MMCompilePlugin extends AbstractMojo {
     @Parameter
     private String moduleType = null;
 
-    @Parameter
-    private String commonJSModuleName = null;
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         source.mkdirs();
@@ -96,9 +93,9 @@ public class MMCompilePlugin extends AbstractMojo {
             }
         }
         try {
-            sourceTranslator.translateSources(source.getPath(), target.getPath(), projectName, appendJavaStd, appendJunitStd, moduleType != null, commonJSModuleName);
+            sourceTranslator.translateSources(source.getPath(), target.getPath(), projectName, appendJavaStd, appendJunitStd);
             if (flatJUnit) {
-                sourceTranslator.translateSources(new File(flatJunitGenDir).getPath(), target.getPath(), "TestRunner", appendJavaStd, appendJunitStd, moduleType != null, commonJSModuleName);
+                sourceTranslator.translateSources(new File(flatJunitGenDir).getPath(), target.getPath(), "TestRunner", appendJavaStd, appendJunitStd);
             }
         } catch (IOException e) {
             e.printStackTrace();

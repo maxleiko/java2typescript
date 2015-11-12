@@ -1,9 +1,9 @@
 
 package org.kevoree.modeling.java2typescript.translators.expression;
 
-import com.intellij.psi.*;
+import com.intellij.psi.PsiExpression;
+import com.intellij.psi.PsiMethodCallExpression;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
 
 public class MethodCallExpressionTranslator {
 

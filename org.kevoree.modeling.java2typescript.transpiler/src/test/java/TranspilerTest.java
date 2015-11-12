@@ -14,7 +14,7 @@ public class TranspilerTest {
         SourceTranslator sourceTranslator = new SourceTranslator();
         sourceTranslator.getAnalyzer().addClasspath("/Users/gnain/.m2/repository/org/kevoree/modeling/org.kevoree.modeling.microframework/4.25.1-SNAPSHOT/org.kevoree.modeling.microframework-4.25.1-SNAPSHOT.jar");
         sourceTranslator.getAnalyzer().addClasspath("/Users/gnain/.m2/repository/junit/junit/4.11/junit-4.11.jar");
-        sourceTranslator.translateSources(baseDir, "target", "out", false, false, false, null);
+        sourceTranslator.translateSources(baseDir, "target", "out", false, false);
     }
 
 

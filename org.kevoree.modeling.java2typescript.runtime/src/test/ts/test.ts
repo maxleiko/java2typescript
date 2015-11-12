@@ -1,3 +1,6 @@
+/// <reference path="../../../target/ts-main/java.d.ts"/>
+/// <reference path="../../../target/ts-main/junit.d.ts"/>
+
 var r = new java.util.Random();
 org.junit.Assert.assertEquals(typeof r.nextInt(), 'number');
 

@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class SourceTranslator {
@@ -26,7 +25,7 @@ public class SourceTranslator {
         SourceTranslator sourceTranslator = new SourceTranslator();
         sourceTranslator.getAnalyzer().addClasspath("/Users/duke/.m2/repository/org/kevoree/modeling/org.kevoree.modeling.microframework/4.25.1-SNAPSHOT/org.kevoree.modeling.microframework-4.25.1-SNAPSHOT.jar");
         sourceTranslator.getAnalyzer().addClasspath("/Users/duke/.m2/repository/junit/junit/4.11/junit-4.11.jar");
-        sourceTranslator.translateSources(baseDir, "target", "out", false, false, false, null);
+        sourceTranslator.translateSources(baseDir, "target", "out", false, false);
     }
 
     private JavaAnalyzer analyzer;
@@ -39,8 +38,8 @@ public class SourceTranslator {
         analyzer = new JavaAnalyzer();
     }
 
-    private static final String JAVA_TS = "java.ts";
-    private static final String JUNIT_TS = "junit.ts";
+    private static final String JAVA_TS = "src/main/ts/java.ts";
+    private static final String JUNIT_TS = "src/main/ts/junit.ts";
 
     private static final String JUNIT_D_TS = "junit.d.ts";
     private static final String JUNIT_JS = "junit.js";
@@ -48,13 +47,13 @@ public class SourceTranslator {
     public String additionalAppend = null;
     public String[] exportPackage = null;
 
-    public void processPsiDirectory(boolean isRoot, PsiDirectory currentDir, TranslationContext ctx, boolean exportRoot) {
+    public void processPsiDirectory(PsiDirectory currentDir, TranslationContext ctx) {
         ctx.print("export module ");
         ctx.append(currentDir.getName());
         ctx.append(" {");
         ctx.append("\n");
         ctx.increaseIdent();
-        List<PsiClass> toTranslate = new ArrayList<PsiClass>();
+        List<PsiClass> toTranslate = new ArrayList<>();
         currentDir.acceptChildren(new PsiElementVisitor() {
             @Override
             public void visitElement(PsiElement element) {
@@ -72,7 +71,7 @@ public class SourceTranslator {
             ClassTranslator.translate(clazz, ctx);
         }
 
-        List<PsiDirectory> subDirectories = new ArrayList<PsiDirectory>();
+        List<PsiDirectory> subDirectories = new ArrayList<>();
         currentDir.acceptChildren(new PsiElementVisitor() {
             @Override
             public void visitElement(PsiElement element) {
@@ -83,14 +82,9 @@ public class SourceTranslator {
                 }
             }
         });
-        Collections.sort(subDirectories, new Comparator<PsiDirectory>() {
-            @Override
-            public int compare(PsiDirectory o1, PsiDirectory o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Collections.sort(subDirectories, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         for (PsiDirectory subDir : subDirectories) {
-            processPsiDirectory(false, subDir, ctx, exportRoot);
+            processPsiDirectory(subDir, ctx);
         }
 
         ctx.decreaseIdent();
@@ -98,7 +92,7 @@ public class SourceTranslator {
         ctx.append("\n");
     }
 
-    public void translateSources(String sourcePath, String outputPath, String name, boolean appendJavaStd, boolean appendJunitStd, boolean exportRoot, String moduleName)
+    public void translateSources(String sourcePath, String outputPath, String name, boolean appendJavaStd, boolean appendJunitStd)
             throws IOException {
         File sourceFolder = new File(sourcePath);
         File targetFolder = new File(outputPath);
@@ -134,32 +128,23 @@ public class SourceTranslator {
 
         //TODO protect by an option
         if (appendJavaStd) {
-            if (exportRoot) {
-                ctx.append(readFully(this.getClass().getClassLoader().getResourceAsStream(JAVA_TS)).replaceFirst("module java", "export module java"));
-            } else {
-                ctx.append(readFully(this.getClass().getClassLoader().getResourceAsStream(JAVA_TS)));
-            }
+            ctx.append(readFully(this.getClass().getClassLoader().getResourceAsStream(JAVA_TS)).replaceFirst("module java", "export module java"));
             ctx.append("\n");
         }
 
         if (additionalAppend != null) {
-            if (exportRoot) {
-                String content = readFully(this.getClass().getClassLoader().getResourceAsStream(additionalAppend));
-                content = content.replaceFirst("module java", "export module java");
-                if (exportPackage != null) {
-                    for (String pack : exportPackage) {
-                        content = content.replaceFirst("module " + pack, "export module " + pack);
-                    }
+            String content = readFully(this.getClass().getClassLoader().getResourceAsStream(additionalAppend));
+            content = content.replaceFirst("module java", "export module java");
+            if (exportPackage != null) {
+                for (String pack : exportPackage) {
+                    content = content.replaceFirst("module " + pack, "export module " + pack);
                 }
-                ctx.append(content);
-            } else {
-                String content = readFully(this.getClass().getClassLoader().getResourceAsStream(additionalAppend));
-                ctx.append(content);
             }
+            ctx.append(content);
         }
 
         PsiDirectory root = analyzer.analyze(sourceFolder);
-        List<PsiDirectory> subDirectories = new ArrayList<PsiDirectory>();
+        List<PsiDirectory> subDirectories = new ArrayList<>();
         root.acceptChildren(new PsiElementVisitor() {
             @Override
             public void visitElement(PsiElement element) {
@@ -172,7 +157,7 @@ public class SourceTranslator {
         });
         Collections.sort(subDirectories, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         for (PsiDirectory subDir : subDirectories) {
-            processPsiDirectory(true, subDir, ctx, exportRoot);
+            processPsiDirectory(subDir, ctx);
         }
 
         File generatedTS = new File(targetFolder, name + ".ts");

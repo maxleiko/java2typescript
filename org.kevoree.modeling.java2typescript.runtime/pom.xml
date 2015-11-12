@@ -24,8 +24,10 @@
                         <phase>compile</phase>
                         <configuration>
                             <tasks>
-                                <exec dir="/home/leiko/.nvm/versions/node/v5.0.0/bin" executable="node" failonerror="true">
-                                    <arg line="/home/leiko/.nvm/versions/node/v5.0.0/lib/node_modules/typescript/lib/tsc.js --outDir ${project.build.outputDirectory} -d ${project.build.sourceDirectory}/../resources/java.ts ${project.build.sourceDirectory}/../resources/junit.ts" />
+                                <exec dir="/home/leiko/.nvm/versions/node/v4.2.2/bin" executable="node" failonerror="true">
+                                    <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js"/>
+                                    <arg line="-p"/>
+                                    <arg line="${project.basedir}/src/main/ts"/>
                                 </exec>
                             </tasks>
                         </configuration>
@@ -38,8 +40,10 @@
                         <phase>compile</phase>
                         <configuration>
                             <tasks>
-                                <exec dir="${project.basedir}/src/test/ts" executable="node" failonerror="true">
-                                    <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js --outDir ../../../target/test-classes test.ts ../../../target/classes/java.d.ts ../../../target/classes/junit.d.ts" />
+                                <exec dir="/home/leiko/.nvm/versions/node/v4.2.2/bin" executable="node" failonerror="true">
+                                    <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js"/>
+                                    <arg line="-p"/>
+                                    <arg line="${project.basedir}/src/test/ts"/>
                                 </exec>
                             </tasks>
                         </configuration>
@@ -47,37 +51,6 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
-
-                    <!--
-                    <execution>
-                      <id>Compile TypeScript: umd</id>
-                      <phase>compile</phase>
-                      <configuration>
-                        <tasks>
-                          <exec dir="${project.basedir}/src/main/ts/umd" executable="node" failonerror="true">
-                            <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js -module umd -outDir ../../../../target/classes/umd src/java.ts src/junit.ts" />
-                          </exec>
-                        </tasks>
-                      </configuration>
-                      <goals>
-                        <goal>run</goal>
-                      </goals>
-                    </execution>
-                    <execution>
-                      <id>Compile TypeScript: umd-test</id>
-                      <phase>compile</phase>
-                      <configuration>
-                        <tasks>
-                          <exec dir="${project.basedir}/src/test/ts/umd-test" executable="node" failonerror="true">
-                            <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js -module commonjs -outDir ../../../../target/test-classes/umd-test src/test.ts ../../../main/ts/umd/src/java.d.ts ../../../main/ts/umd/src/junit.d.ts" />
-                          </exec>
-                        </tasks>
-                      </configuration>
-                      <goals>
-                        <goal>run</goal>
-                      </goals>
-                    </execution>
-                    -->
                 </executions>
             </plugin>
         </plugins>
