@@ -93,9 +93,9 @@ public class MMCompilePlugin extends AbstractMojo {
             }
         }
         try {
-            sourceTranslator.translateSources(source.getPath(), target.getPath(), projectName, appendJavaStd, appendJunitStd);
+            sourceTranslator.translateSources(source.getPath(), target.getPath(), projectName, appendJavaStd, appendJunitStd, moduleType != null);
             if (flatJUnit) {
-                sourceTranslator.translateSources(new File(flatJunitGenDir).getPath(), target.getPath(), "TestRunner", appendJavaStd, appendJunitStd);
+                sourceTranslator.translateSources(new File(flatJunitGenDir).getPath(), target.getPath(), "TestRunner", appendJavaStd, appendJunitStd, moduleType != null);
             }
         } catch (IOException e) {
             e.printStackTrace();

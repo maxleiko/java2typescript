@@ -25,7 +25,7 @@ public class SourceTranslator {
         SourceTranslator sourceTranslator = new SourceTranslator();
         sourceTranslator.getAnalyzer().addClasspath("/Users/duke/.m2/repository/org/kevoree/modeling/org.kevoree.modeling.microframework/4.25.1-SNAPSHOT/org.kevoree.modeling.microframework-4.25.1-SNAPSHOT.jar");
         sourceTranslator.getAnalyzer().addClasspath("/Users/duke/.m2/repository/junit/junit/4.11/junit-4.11.jar");
-        sourceTranslator.translateSources(baseDir, "target", "out", false, false);
+        sourceTranslator.translateSources(baseDir, "target", "out", false, false, false);
     }
 
     private JavaAnalyzer analyzer;
@@ -47,8 +47,17 @@ public class SourceTranslator {
     public String additionalAppend = null;
     public String[] exportPackage = null;
 
-    public void processPsiDirectory(PsiDirectory currentDir, TranslationContext ctx) {
-        ctx.print("export module ");
+    public void processPsiDirectory(boolean isRoot, PsiDirectory currentDir, TranslationContext ctx, boolean exportRoot) {
+        if (isRoot) {
+            if (exportRoot) {
+                ctx.print("export module ");
+            } else {
+                ctx.print("module ");
+            }
+        } else {
+            ctx.print("export module ");
+        }
+
         ctx.append(currentDir.getName());
         ctx.append(" {");
         ctx.append("\n");
@@ -84,7 +93,7 @@ public class SourceTranslator {
         });
         Collections.sort(subDirectories, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         for (PsiDirectory subDir : subDirectories) {
-            processPsiDirectory(subDir, ctx);
+            processPsiDirectory(false, subDir, ctx, exportRoot);
         }
 
         ctx.decreaseIdent();
@@ -92,7 +101,7 @@ public class SourceTranslator {
         ctx.append("\n");
     }
 
-    public void translateSources(String sourcePath, String outputPath, String name, boolean appendJavaStd, boolean appendJunitStd)
+    public void translateSources(String sourcePath, String outputPath, String name, boolean appendJavaStd, boolean appendJunitStd, boolean exportRoot)
             throws IOException {
         File sourceFolder = new File(sourcePath);
         File targetFolder = new File(outputPath);
@@ -157,7 +166,7 @@ public class SourceTranslator {
         });
         Collections.sort(subDirectories, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         for (PsiDirectory subDir : subDirectories) {
-            processPsiDirectory(subDir, ctx);
+            processPsiDirectory(true, subDir, ctx, exportRoot);
         }
 
         File generatedTS = new File(targetFolder, name + ".ts");

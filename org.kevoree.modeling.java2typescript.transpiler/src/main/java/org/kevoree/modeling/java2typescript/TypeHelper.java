@@ -4,6 +4,7 @@ package org.kevoree.modeling.java2typescript;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
+import com.intellij.psi.impl.source.PsiImmediateClassType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import org.kevoree.modeling.java2typescript.translators.NativeTsTranslator;
@@ -53,17 +54,6 @@ public class TypeHelper {
         } else if (element instanceof PsiArrayType) {
             PsiArrayType typedElement = (PsiArrayType) element;
             String partialResult = printType(typedElement.getComponentType(), ctx, true, false, true);
-            /*
-            if (typedElement.getComponentType() instanceof PsiClassReferenceType) {
-                PsiClass resolvedClass = ((PsiClassReferenceType) typedElement.getComponentType()).resolve();
-                if (resolvedClass != null) {
-                    if (isCallbackClass(resolvedClass) && !explicitType) {
-                        //'{ (p: KEvent): void; }[]' is not assignable to type '(p: KEvent) => void[]'.
-                        result = "{" + partialResult.replace("=>", ":") + ";}[]";
-                        return result;
-                    }
-                }
-            }*/
             result = partialResult + "[]";
             return result;
         } else if (element instanceof PsiClassReferenceType) {
@@ -81,9 +71,16 @@ public class TypeHelper {
                     PsiType[] referenceParameters = elementClassRefType.getParameters();
                     if (typeParameters.length > 0) {
                         String[] generics = new String[typeParameters.length];
+                        PsiElement parent = elementClassRefType.getReference().getElement().getParent();
                         for (int i = 0; i < typeParameters.length; i++) {
                             if (referenceParameters.length > i) {
-                                generics[i] = printType(referenceParameters[i], ctx);//((PsiClassReferenceType)).resolve().getQualifiedName();
+                                // Support for the new Foo<>() Java8 construct.
+                                if (parent instanceof PsiNewExpression && referenceParameters[i] instanceof PsiImmediateClassType) {
+                                    PsiTypeElement resolvedGeneric = ((PsiField) ((PsiAssignmentExpression) parent.getParent()).getLExpression().getReference().resolve()).getTypeElement().getInnermostComponentReferenceElement().getParameterList().getTypeParameterElements()[i];
+                                    generics[i] = printType(resolvedGeneric.getType(), ctx);
+                                } else {
+                                    generics[i] = printType(referenceParameters[i], ctx);
+                                }
                             } else {
                                 generics[i] = "any";
                             }
