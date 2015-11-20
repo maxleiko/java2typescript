@@ -2,11 +2,16 @@
 package org.kevoree.modeling.java2typescript.translators;
 
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
+import org.kevoree.modeling.java2typescript.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.TypeHelper;
 import org.kevoree.modeling.java2typescript.translators.expression.ExpressionTranslator;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FieldTranslator {
 
@@ -70,6 +75,10 @@ public class FieldTranslator {
             ctx.append("static ");
         }
         ctx.append(element.getName()).append(": ");
+        if (element.getType() instanceof PsiClassReferenceType) {
+            PsiElement resolution = ((PsiClassReferenceType) element.getType()).getReference().resolve();
+            ImportHelper.importIfValid(element, resolution, ctx);
+        }
         ctx.append(TypeHelper.printType(element.getType(), ctx));
         if (element.hasInitializer()) {
             ctx.append(" = ");

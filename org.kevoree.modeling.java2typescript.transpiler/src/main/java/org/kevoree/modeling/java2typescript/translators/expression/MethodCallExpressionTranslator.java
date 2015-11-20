@@ -8,7 +8,6 @@ import org.kevoree.modeling.java2typescript.TranslationContext;
 public class MethodCallExpressionTranslator {
 
     public static void translate(PsiMethodCallExpression element, TranslationContext ctx) {
-
         if(element.getMethodExpression().toString().contains("System.out")){
             ctx.append("console.log(");
             PsiExpression[] arguments = element.getArgumentList().getExpressions();
@@ -29,10 +28,12 @@ public class MethodCallExpressionTranslator {
                 }
             }
             ctx.append(")");
-        } else if(element.getMethodExpression().toString().contains("printStackTrace")){
+        } else if(element.getMethodExpression().toString().contains("printStackTrace")) {
             ctx.append("console.error(");
             ExpressionTranslator.translate(element.getMethodExpression().getQualifierExpression(), ctx);
             ctx.append("['stack'])");
+//        } else if (element.getMethodExpression().getText().contains(".getClass")) {
+//            ctx.append(element.getMethodExpression().getText().replace(".getClass", ".prototype"));
         } else {
             ReferenceExpressionTranslator.translate(element.getMethodExpression(), ctx);
             if (!element.getMethodExpression().toString().endsWith(".length")) {

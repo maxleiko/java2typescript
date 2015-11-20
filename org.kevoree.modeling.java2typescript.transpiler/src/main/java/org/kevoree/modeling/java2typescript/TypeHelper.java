@@ -27,8 +27,12 @@ public class TypeHelper {
             return "Error";
         }
 
+        if (result.contains("?")) {
+            System.out.println("TypeHelper: Java wildcard converted to \"any\" for \""+ element.getPresentableText()+"\"");
+            return "any";
+        }
 
-        if (objects.contains(result)) {
+        if (objects.contains(result) || classes.contains(result)) {
             return "any";
         } else if (primitiveNumbers.contains(result) || objectNumbers.contains(result)) {
             return "number";
@@ -57,14 +61,13 @@ public class TypeHelper {
             result = partialResult + "[]";
             return result;
         } else if (element instanceof PsiClassReferenceType) {
-
             PsiClassReferenceType elementClassRefType = ((PsiClassReferenceType) element);
             PsiClass resolvedClass = elementClassRefType.resolve();
 
             if (resolvedClass != null) {
-                String qualifiedName = resolvedClass.getQualifiedName();
+                String qualifiedName = resolvedClass.getName();
                 if (qualifiedName != null) {
-                    result = resolvedClass.getQualifiedName();
+                    result = resolvedClass.getName();
                 }
                 if (withGenericParams) {
                     PsiTypeParameter[] typeParameters = resolvedClass.getTypeParameters();
@@ -87,13 +90,6 @@ public class TypeHelper {
                         }
                         result += "<" + String.join(", ", generics) + ">";
                     }
-                    /*
-                    if (elementClassRefType.getParameters().length > 0) {
-                        String[] generics = new String[elementClassRefType.getParameters().length];
-                        Arrays.fill(generics, "any");
-                        result += "<" + String.join(", ", generics) + ">";
-                    }
-                    */
                 }
             } else {
                 String tryJavaUtil = javaTypes.get(elementClassRefType.getClassName());
@@ -114,7 +110,7 @@ public class TypeHelper {
                 }
             }
         } else {
-            System.err.println("TypeHelper: InstanceOf:" + element.getClass());
+            System.out.println("TypeHelper: unhandled type -> " + element.getClass());
         }
 
         if (result == null || result.equals("null")) {
@@ -240,4 +236,8 @@ public class TypeHelper {
             Object.class.getSimpleName()
     );
 
+    public static final Set<String> classes = ImmutableSet.of(
+            Class.class.getName(),
+            Class.class.getSimpleName()
+    );
 }

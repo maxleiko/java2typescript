@@ -1,9 +1,12 @@
 package org.kevoree.modeling.java2typescript.translators;
 
+import com.intellij.compiler.ant.taskdefs.Import;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocTagValue;
+import org.kevoree.modeling.java2typescript.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.TypeHelper;
 
@@ -81,7 +84,7 @@ public class MethodTranslator {
             }
         }
         ctx.append('(');
-        List<String> params = new ArrayList<String>();
+        List<String> params = new ArrayList<>();
         StringBuilder paramSB = new StringBuilder();
         for (PsiParameter parameter : method.getParameterList().getParameters()) {
             paramSB.setLength(0);
@@ -90,6 +93,12 @@ public class MethodTranslator {
             }
             paramSB.append(parameter.getName());
             paramSB.append(": ");
+            if (parameter.getType() instanceof PsiClassReferenceType) {
+                PsiElement resolution = ((PsiClassReferenceType) parameter.getType()).getReference().resolve();
+                if (resolution != null) {
+                    ImportHelper.importIfValid(method, resolution, ctx);
+                }
+            }
             paramSB.append(TypeHelper.printType(parameter.getType(), ctx));
             params.add(paramSB.toString());
         }

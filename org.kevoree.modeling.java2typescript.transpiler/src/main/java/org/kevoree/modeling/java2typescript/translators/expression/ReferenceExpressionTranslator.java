@@ -2,8 +2,14 @@
 package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.*;
+import org.kevoree.modeling.java2typescript.ImportHelper;
+import org.kevoree.modeling.java2typescript.PathHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.TypeHelper;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ReferenceExpressionTranslator {
 
@@ -37,8 +43,7 @@ public class ReferenceExpressionTranslator {
                         ctx.append(qualifier).append('.');
                     }
                 } else if (resolution instanceof PsiClass) {
-                    PsiClass resolClazz = (PsiClass) resolution;
-                    ctx.append(resolClazz.getQualifiedName().substring(0, resolClazz.getQualifiedName().lastIndexOf(".") + 1));
+                    ImportHelper.importIfValid(element, resolution, ctx);
                 }
             }
         }

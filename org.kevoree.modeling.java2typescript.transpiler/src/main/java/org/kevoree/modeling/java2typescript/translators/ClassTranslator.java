@@ -5,6 +5,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
+import org.kevoree.modeling.java2typescript.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.TypeHelper;
 
@@ -54,6 +55,7 @@ public class ClassTranslator {
                 if (extentions.length > 0) {
                     ctx.append(" extends ");
                     for (PsiClassType ext : extentions) {
+                        System.out.println("SWAG "+ext.getClassName());
                         ctx.append(TypeHelper.printType(ext, ctx));
                     }
                 }
@@ -66,12 +68,12 @@ public class ClassTranslator {
         PsiClassType[] extendsList = clazz.getExtendsListTypes();
         if (extendsList.length != 0 && !clazz.isEnum()) {
             ctx.append(" extends ");
-            writeTypeList(ctx, extendsList);
+            writeTypeList(ctx, clazz, extendsList);
         }
         PsiClassType[] implementsList = clazz.getImplementsListTypes();
         if (implementsList.length != 0) {
             ctx.append(" implements ");
-            writeTypeList(ctx, implementsList);
+            writeTypeList(ctx, clazz, implementsList);
         }
         ctx.append(" {\n\n");
 
@@ -194,9 +196,10 @@ public class ClassTranslator {
         ctx.decreaseIdent();
     }
 
-    private static void writeTypeList(TranslationContext ctx, PsiClassType[] typeList) {
+    private static void writeTypeList(TranslationContext ctx, PsiClass clazz, PsiClassType[] typeList) {
         for (int i = 0; i < typeList.length; i++) {
             PsiClassType type = typeList[i];
+            ImportHelper.importIfValid(clazz, type.resolve(), ctx);
             ctx.append(TypeHelper.printType(type, ctx, true, true, false));
             if (i != typeList.length - 1) {
                 ctx.append(", ");
