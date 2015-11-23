@@ -6,9 +6,11 @@ import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocTagValue;
+import org.kevoree.modeling.java2typescript.DocHelper;
 import org.kevoree.modeling.java2typescript.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.TypeHelper;
+import org.kevoree.modeling.java2typescript.metas.DocMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,27 +21,12 @@ import java.util.List;
 public class MethodTranslator {
 
     public static void translate(PsiMethod method, TranslationContext ctx, boolean isAnonymous) {
+        DocMeta docMeta = DocHelper.process(method.getDocComment());
 
-        boolean nativeActivated = false;
-        boolean ignore = false;
-        //Check for native code
-        PsiDocComment comment = method.getDocComment();
-        if (comment != null) {
-            PsiDocTag[] tags = comment.getTags();
-            if (tags != null) {
-                for (PsiDocTag tag : tags) {
-                    if (tag.getName().equals(NativeTsTranslator.TAG) && tag.getValueElement() != null && tag.getValueElement().getText().equals(NativeTsTranslator.TAG_VAL_TS)) {
-                        nativeActivated = true;
-                    }
-                    if (tag.getName().equals(NativeTsTranslator.TAG_IGNORE) && tag.getValueElement() != null && tag.getValueElement().getText().equals(NativeTsTranslator.TAG_VAL_TS)) {
-                        ignore = true;
-                    }
-                }
-            }
-        }
-        if (ignore) {
+        if (docMeta.ignored) {
             return;
         }
+
         PsiModifierList modifierList = method.getModifierList();
         PsiClass containingClass = (PsiClass) method.getParent();
         if (method.isConstructor()) {
@@ -63,25 +50,7 @@ public class MethodTranslator {
             if (!isAnonymous) {
                 ctx.append(method.getName());
             }
-            PsiTypeParameter[] typeParameters = method.getTypeParameters();
-            if (typeParameters.length > 0) {
-                ctx.append('<');
-                for (int i = 0; i < typeParameters.length; i++) {
-                    PsiTypeParameter p = typeParameters[i];
-                    ctx.append(p.getName());
-                    PsiClassType[] extentions = p.getExtendsList().getReferencedTypes();
-                    if (extentions.length > 0) {
-                        ctx.append(" extends ");
-                        for (PsiClassType ext : extentions) {
-                            ctx.append(TypeHelper.printType(ext, ctx));
-                        }
-                    }
-                    if (i != typeParameters.length - 1) {
-                        ctx.append(", ");
-                    }
-                }
-                ctx.append("> ");
-            }
+            TypeParametersTranslator.translate(method.getTypeParameters(), ctx);
         }
         ctx.append('(');
         List<String> params = new ArrayList<>();
@@ -96,7 +65,7 @@ public class MethodTranslator {
             if (parameter.getType() instanceof PsiClassReferenceType) {
                 PsiElement resolution = ((PsiClassReferenceType) parameter.getType()).getReference().resolve();
                 if (resolution != null) {
-                    ImportHelper.importIfValid(method, resolution, ctx);
+                    ImportHelper.importIfValid(resolution, ctx);
                 }
             }
             paramSB.append(TypeHelper.printType(parameter.getType(), ctx));
@@ -114,14 +83,14 @@ public class MethodTranslator {
             } else {
                 ctx.append(" {\n");
                 ctx.increaseIdent();
-                if (!nativeActivated) {
+                if (!docMeta.nativeActivated) {
                     if (method.getBody() == null) {
                         ctx.print("throw \"Empty body\";\n");
                     } else {
                         CodeBlockTranslator.translate(method.getBody(), ctx);
                     }
                 } else {
-                    NativeTsTranslator.translate(comment, ctx);
+                    NativeTsTranslator.translate(method.getDocComment(), ctx);
                 }
                 ctx.decreaseIdent();
                 ctx.print("}\n");

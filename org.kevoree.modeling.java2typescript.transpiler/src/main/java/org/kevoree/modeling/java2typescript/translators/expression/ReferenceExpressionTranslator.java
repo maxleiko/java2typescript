@@ -43,7 +43,7 @@ public class ReferenceExpressionTranslator {
                         ctx.append(qualifier).append('.');
                     }
                 } else if (resolution instanceof PsiClass) {
-                    ImportHelper.importIfValid(element, resolution, ctx);
+                    ImportHelper.importIfValid(resolution, ctx);
                 }
             }
         }

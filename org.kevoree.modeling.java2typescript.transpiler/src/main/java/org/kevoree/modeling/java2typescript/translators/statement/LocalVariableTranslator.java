@@ -8,10 +8,8 @@ import org.kevoree.modeling.java2typescript.translators.expression.ExpressionTra
 public class LocalVariableTranslator {
 
     public static void translate(PsiLocalVariable element, TranslationContext ctx) {
-
         PsiElement parent = element.getParent();
         boolean loopDeclaration = false;
-
 
         if (parent instanceof PsiDeclarationStatement) {
             parent = parent.getParent();
@@ -28,9 +26,12 @@ public class LocalVariableTranslator {
         }
 
         ctx.append(element.getName());
-        ctx.append(": ");
-        ctx.append(TypeHelper.printType(element.getType(), ctx));
+
         if (element.hasInitializer()) {
+            if (!element.getType().toString().equals(element.getInitializer().getType().toString())) {
+                ctx.append(": ");
+                ctx.append(TypeHelper.printType(element.getType(), ctx));
+            }
             ctx.append(" = ");
             ExpressionTranslator.translate(element.getInitializer(), ctx);
         }

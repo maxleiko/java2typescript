@@ -2,6 +2,7 @@
 package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.*;
+import org.kevoree.modeling.java2typescript.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.TypeHelper;
 import org.kevoree.modeling.java2typescript.translators.AnonymousClassTranslator;
@@ -11,14 +12,25 @@ public class NewExpressionTranslator {
     public static void translate(PsiNewExpression element, TranslationContext ctx) {
         PsiAnonymousClass anonymousClass = element.getAnonymousClass();
         if (anonymousClass != null) {
+            PsiElement resolution = anonymousClass.getBaseClassReference().resolve();
+            ImportHelper.importIfValid(resolution, ctx);
+            System.out.println("ANONYMOUS CLASS = "+ImportHelper.getGeneratedName(resolution, ctx));
             AnonymousClassTranslator.translate(anonymousClass, ctx);
         } else {
             boolean arrayDefinition = false;
             PsiJavaCodeReferenceElement classReference = element.getClassReference();
             String className;
             if (classReference != null) {
-                //PsiElement resolved = classReference.resolve();
+                PsiElement resolution = classReference.resolve();
                 className = TypeHelper.printType(element.getType(), ctx);
+
+                if (resolution != null) {
+                    ImportHelper.importIfValid(resolution, ctx);
+                    String genName = ImportHelper.getGeneratedName(resolution, ctx);
+                    if (genName != null) {
+                        className = genName;
+                    }
+                }
             } else {
                 className = TypeHelper.printType(element.getType().getDeepComponentType(), ctx);
                 arrayDefinition = true;
@@ -35,13 +47,7 @@ public class NewExpressionTranslator {
                 if (anonymousClass == null) {
                     ctx.append("new ").append(className).append('(');
                     if (element.getArgumentList() != null) {
-                        PsiExpression[] arguments = element.getArgumentList().getExpressions();
-                        for (int i = 0; i < arguments.length; i++) {
-                            ExpressionTranslator.translate(arguments[i], ctx);
-                            if (i != arguments.length - 1) {
-                                ctx.append(", ");
-                            }
-                        }
+                        ExpressionListTranslator.translate(element.getArgumentList(), ctx);
                     }
                     ctx.append(')');
                 }

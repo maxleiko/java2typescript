@@ -1,8 +1,14 @@
 
 package org.kevoree.modeling.java2typescript;
 
+import com.intellij.psi.PsiJavaFile;
+
 import java.util.*;
 
+/**
+ * TranslationContext are a per-file contex, which allows to reason on
+ * the wanted generated output
+ */
 public class TranslationContext {
 
     public boolean NATIVE_ARRAY = true;
@@ -10,13 +16,17 @@ public class TranslationContext {
     private StringBuilder sb = new StringBuilder();
     private static final int identSize = 4;
     private int ident = 0;
+    private PsiJavaFile file;
     private String srcPath;
     private String outPath;
     private Map<String, Set<String>> imports = new HashMap<>();
+    private Map<String, Set<String>> reverseImports = new HashMap<>();
+    private Map<String, String> generatedNames = new HashMap<>();
 
     public TranslationContext() {}
 
-    public TranslationContext(String srcPath, String outPath) {
+    public TranslationContext(PsiJavaFile file, String srcPath, String outPath) {
+        this.file = file;
         this.srcPath = srcPath;
         this.outPath = outPath;
     }
@@ -44,14 +54,33 @@ public class TranslationContext {
         return this;
     }
 
-    public TranslationContext addImport(String clazz, String file) {
-        Set<String> classes = this.imports.get(file);
+    public TranslationContext addImport(String clazz, String fromFile) {
+        Set<String> classes = this.imports.get(fromFile);
         if (classes == null) {
             classes = new HashSet<>();
-            this.imports.put(file, classes);
+            this.imports.put(fromFile, classes);
         }
+
+        Set<String> fromFiles = this.reverseImports.get(clazz);
+        if (fromFiles == null) {
+            fromFiles = new HashSet<>();
+            this.reverseImports.put(clazz, fromFiles);
+        }
+
+        if (!fromFiles.isEmpty() && (!fromFiles.contains(fromFile) && fromFiles.size() == 1)) {
+            String generatedName = clazz + (fromFiles.size() - 1);
+            this.generatedNames.put(clazz+"_"+fromFile, generatedName);
+            clazz = clazz + " as " + generatedName;
+        }
+
+        fromFiles.add(fromFile);
         classes.add(clazz);
+
         return this;
+    }
+
+    public String getImportGeneratedName(String clazz, String fromFile) {
+        return this.generatedNames.get(clazz + "_" + fromFile);
     }
 
     public TranslationContext ident() {
@@ -59,6 +88,10 @@ public class TranslationContext {
             sb.append(' ');
         }
         return this;
+    }
+
+    public PsiJavaFile getFile() {
+        return file;
     }
 
     public TranslationContext append(String str) {

@@ -2,18 +2,18 @@
 package org.kevoree.modeling.java2typescript.translators;
 
 import com.intellij.psi.*;
-import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
+import org.kevoree.modeling.java2typescript.DocHelper;
 import org.kevoree.modeling.java2typescript.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.TypeHelper;
-
-import java.util.ArrayList;
+import org.kevoree.modeling.java2typescript.metas.DocMeta;
 
 public class ClassTranslator {
 
     public static void translate(PsiClass clazz, TranslationContext ctx) {
+        ImportHelper.importIfValid(clazz, ctx);
 
         boolean ignoreClass = false;
         boolean nativeActivated = false;
@@ -45,35 +45,17 @@ public class ClassTranslator {
         }
 
         ctx.append(clazz.getName());
-        PsiTypeParameter[] typeParameters = clazz.getTypeParameters();
-        if (typeParameters.length > 0) {
-            ctx.append('<');
-            for (int i = 0; i < typeParameters.length; i++) {
-                PsiTypeParameter p = typeParameters[i];
-                ctx.append(p.getName());
-                PsiClassType[] extentions = p.getExtendsList().getReferencedTypes();
-                if (extentions.length > 0) {
-                    ctx.append(" extends ");
-                    for (PsiClassType ext : extentions) {
-                        System.out.println("SWAG "+ext.getClassName());
-                        ctx.append(TypeHelper.printType(ext, ctx));
-                    }
-                }
-                if (i != typeParameters.length - 1) {
-                    ctx.append(", ");
-                }
-            }
-            ctx.append('>');
-        }
+        TypeParametersTranslator.translate(clazz.getTypeParameters(), ctx);
+
         PsiClassType[] extendsList = clazz.getExtendsListTypes();
         if (extendsList.length != 0 && !clazz.isEnum()) {
             ctx.append(" extends ");
-            writeTypeList(ctx, clazz, extendsList);
+            writeTypeList(ctx, extendsList);
         }
         PsiClassType[] implementsList = clazz.getImplementsListTypes();
         if (implementsList.length != 0) {
             ctx.append(" implements ");
-            writeTypeList(ctx, clazz, implementsList);
+            writeTypeList(ctx, implementsList);
         }
         ctx.append(" {\n\n");
 
@@ -95,19 +77,8 @@ public class ClassTranslator {
 
         boolean atLeastOne = false;
         for (PsiClass loopClass : innerClasses) {
-            boolean ignoreClass = false;
-            PsiDocComment comment = loopClass.getDocComment();
-            if (comment != null) {
-                PsiDocTag[] tags = comment.getTags();
-                if (tags != null) {
-                    for (PsiDocTag tag : tags) {
-                        if (tag.getName().equals(NativeTsTranslator.TAG_IGNORE) && tag.getValueElement() != null && tag.getValueElement().getText().equals(NativeTsTranslator.TAG_VAL_TS)) {
-                            ignoreClass = true;
-                        }
-                    }
-                }
-            }
-            if (!ignoreClass) {
+            DocMeta docMeta = DocHelper.process(loopClass.getDocComment());
+            if (!docMeta.ignored) {
                 atLeastOne = true;
             }
         }
@@ -196,10 +167,10 @@ public class ClassTranslator {
         ctx.decreaseIdent();
     }
 
-    private static void writeTypeList(TranslationContext ctx, PsiClass clazz, PsiClassType[] typeList) {
+    private static void writeTypeList(TranslationContext ctx, PsiClassType[] typeList) {
         for (int i = 0; i < typeList.length; i++) {
             PsiClassType type = typeList[i];
-            ImportHelper.importIfValid(clazz, type.resolve(), ctx);
+            ImportHelper.importIfValid(type.resolve(), ctx);
             ctx.append(TypeHelper.printType(type, ctx, true, true, false));
             if (i != typeList.length - 1) {
                 ctx.append(", ");

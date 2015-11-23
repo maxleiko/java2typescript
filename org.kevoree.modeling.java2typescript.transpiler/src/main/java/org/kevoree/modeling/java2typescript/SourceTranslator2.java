@@ -64,7 +64,7 @@ public class SourceTranslator2 {
         String path = PathHelper.getPath(srcPath, outPath, file);
         File tsFile = new File(path);
 
-        TranslationContext ctx = new TranslationContext(this.srcPath, this.outPath);
+        TranslationContext ctx = new TranslationContext(file, this.srcPath, this.outPath);
         file.acceptChildren(new PsiElementVisitor() {
             @Override
             public void visitElement(PsiElement element) {
