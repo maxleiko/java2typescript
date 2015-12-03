@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 public class TranspilerTest {
 
     public static void main(String[] args) throws IOException {
-        String srcPath = Paths.get("/tmp/java-test/src/main/java").toAbsolutePath().toString();
+        String srcPath = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         String outPath = Paths.get("target", "out", "ts").toString();
         SourceTranslator translator = new SourceTranslator(srcPath, outPath);
         System.out.println("Transpiling...");
