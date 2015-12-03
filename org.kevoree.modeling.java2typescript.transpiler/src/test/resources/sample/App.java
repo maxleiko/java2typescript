@@ -6,7 +6,7 @@ public class App {
     public App() {
         fr.braindead.OtherClass o = new fr.braindead.OtherClass();
         org.kevoree.OtherClass o2 = new org.kevoree.OtherClass();
-        List<String> l = new ArrayList<>();
+//        List<String> l = new ArrayList<>();
         int[] array = new int[1];
         long[] longArray = new long[1];
         boolean[] boolArray = new boolean[1];

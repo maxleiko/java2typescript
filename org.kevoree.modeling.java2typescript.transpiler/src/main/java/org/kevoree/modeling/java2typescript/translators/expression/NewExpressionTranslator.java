@@ -2,9 +2,9 @@
 package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.*;
-import org.kevoree.modeling.java2typescript.ImportHelper;
+import org.kevoree.modeling.java2typescript.helper.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
+import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.translators.AnonymousClassTranslator;
 
 public class NewExpressionTranslator {

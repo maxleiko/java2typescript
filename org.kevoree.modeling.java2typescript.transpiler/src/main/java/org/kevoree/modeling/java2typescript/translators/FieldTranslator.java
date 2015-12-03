@@ -3,10 +3,10 @@ package org.kevoree.modeling.java2typescript.translators;
 
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
-import org.kevoree.modeling.java2typescript.DocHelper;
-import org.kevoree.modeling.java2typescript.ImportHelper;
+import org.kevoree.modeling.java2typescript.helper.DocHelper;
+import org.kevoree.modeling.java2typescript.helper.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
+import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.metas.DocMeta;
 import org.kevoree.modeling.java2typescript.translators.expression.ExpressionListTranslator;
 import org.kevoree.modeling.java2typescript.translators.expression.ExpressionTranslator;

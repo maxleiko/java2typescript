@@ -1,8 +1,9 @@
-package org.kevoree.modeling.java2typescript;
+package org.kevoree.modeling.java2typescript.helper;
 
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
+import org.kevoree.modeling.java2typescript.TranslationContext;
 
 import java.io.File;
 

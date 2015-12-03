@@ -4,7 +4,7 @@ package org.kevoree.modeling.java2typescript.translators.statement;
 import com.intellij.psi.PsiForeachStatement;
 import com.intellij.psi.PsiParameter;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
+import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.translators.expression.ExpressionTranslator;
 
 public class ForEachStatementTranslator {

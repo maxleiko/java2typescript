@@ -2,7 +2,7 @@ package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.PsiClassObjectAccessExpression;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
+import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 
 public class ClassObjectAccessExpressionTranslator {
 

@@ -1,5 +1,5 @@
 
-package org.kevoree.modeling.java2typescript;
+package org.kevoree.modeling.java2typescript.helper;
 
 import com.google.common.collect.ImmutableSet;
 import com.intellij.psi.*;
@@ -7,6 +7,7 @@ import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.impl.source.PsiImmediateClassType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
+import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.translators.NativeTsTranslator;
 
 import java.math.BigDecimal;
@@ -94,6 +95,8 @@ public class TypeHelper {
             } else {
                 String tryJavaUtil = javaTypes.get(elementClassRefType.getClassName());
                 if (tryJavaUtil != null) {
+                    ctx.addImport("* as java", "java");
+                    ctx.needsJava(tryJavaUtil);
                     result = tryJavaUtil;
                 } else {
                     result = elementClassRefType.getReference().getQualifiedName();

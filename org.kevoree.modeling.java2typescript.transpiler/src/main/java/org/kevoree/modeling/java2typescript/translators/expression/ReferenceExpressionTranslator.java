@@ -2,14 +2,9 @@
 package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.*;
-import org.kevoree.modeling.java2typescript.ImportHelper;
-import org.kevoree.modeling.java2typescript.PathHelper;
+import org.kevoree.modeling.java2typescript.helper.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 
 public class ReferenceExpressionTranslator {
 

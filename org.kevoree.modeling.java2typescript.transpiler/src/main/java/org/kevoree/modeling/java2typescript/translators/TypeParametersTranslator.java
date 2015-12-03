@@ -3,7 +3,7 @@ package org.kevoree.modeling.java2typescript.translators;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiTypeParameter;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
+import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 
 /**
  *

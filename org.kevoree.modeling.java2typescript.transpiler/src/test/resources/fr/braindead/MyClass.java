@@ -21,4 +21,8 @@ public abstract class MyClass implements MyInterface {
     }
 
     public abstract void bar();
+
+    public class InnerClass {}
+
+    private class InnerPrivateClass {}
 }

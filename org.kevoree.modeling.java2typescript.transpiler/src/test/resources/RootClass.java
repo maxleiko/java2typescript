@@ -8,4 +8,8 @@ public class RootClass {
     public int getValue() {
         return value;
     }
+
+    public static void main(String[] args) {
+        RootClass c = new RootClass();
+    }
 }

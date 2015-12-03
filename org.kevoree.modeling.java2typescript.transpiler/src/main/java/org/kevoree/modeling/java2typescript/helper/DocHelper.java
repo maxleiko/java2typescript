@@ -1,4 +1,4 @@
-package org.kevoree.modeling.java2typescript;
+package org.kevoree.modeling.java2typescript.helper;
 
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;

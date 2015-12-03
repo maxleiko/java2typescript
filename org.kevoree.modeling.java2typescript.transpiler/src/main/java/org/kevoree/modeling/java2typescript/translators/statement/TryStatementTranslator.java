@@ -4,7 +4,7 @@ package org.kevoree.modeling.java2typescript.translators.statement;
 import com.intellij.psi.PsiCatchSection;
 import com.intellij.psi.PsiTryStatement;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
+import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.translators.CodeBlockTranslator;
 
 public class TryStatementTranslator {

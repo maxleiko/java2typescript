@@ -4,10 +4,8 @@ package org.kevoree.modeling.java2typescript.translators;
 import com.google.common.base.*;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.compiled.ClsMethodImpl;
-import com.intellij.psi.impl.java.stubs.PsiMethodStub;
 import org.kevoree.modeling.java2typescript.TranslationContext;
-import org.kevoree.modeling.java2typescript.TypeHelper;
-import org.kevoree.modeling.java2typescript.translators.expression.ExpressionTranslator;
+import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 
 import java.util.*;
 
