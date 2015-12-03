@@ -14,7 +14,6 @@ public class NewExpressionTranslator {
         if (anonymousClass != null) {
             PsiElement resolution = anonymousClass.getBaseClassReference().resolve();
             ImportHelper.importIfValid(resolution, ctx);
-            System.out.println("ANONYMOUS CLASS = "+ImportHelper.getGeneratedName(resolution, ctx));
             AnonymousClassTranslator.translate(anonymousClass, ctx);
         } else {
             boolean arrayDefinition = false;

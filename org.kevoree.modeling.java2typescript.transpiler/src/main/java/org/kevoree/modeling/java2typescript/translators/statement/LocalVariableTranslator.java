@@ -27,7 +27,7 @@ public class LocalVariableTranslator {
 
         ctx.append(element.getName());
 
-        if (element.hasInitializer()) {
+        if (element.hasInitializer() && element.getInitializer() != null && element.getInitializer().getType() != null) {
             if (!element.getType().toString().equals(element.getInitializer().getType().toString())) {
                 ctx.append(": ");
                 ctx.append(TypeHelper.printType(element.getType(), ctx));
