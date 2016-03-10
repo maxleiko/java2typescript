@@ -48,12 +48,23 @@
             </roles>
             <timezone>+2</timezone>
         </developer>
+        <developer>
+            <name>Maxime Tricoire</name>
+            <id>maxleiko</id>
+            <email>max.tricoire@gmail.com</email>
+            <roles>
+                <role>admin</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
     </developers>
 
     <modules>
         <module>org.kevoree.modeling.java2typescript.runtime</module>
         <module>org.kevoree.modeling.java2typescript.transpiler</module>
         <module>org.kevoree.modeling.java2typescript.mavenplugin</module>
+        <module>test-mavenplugin</module>
     </modules>
 
     <dependencies>

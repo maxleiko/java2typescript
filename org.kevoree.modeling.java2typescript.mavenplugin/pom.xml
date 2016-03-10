@@ -15,11 +15,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.nodejs</artifactId>
-            <version>1.28</version>
-        </dependency>
-        <dependency>
             <groupId>org.kevoree.modeling</groupId>
             <artifactId>org.kevoree.modeling.java2typescript.transpiler</artifactId>
             <version>${project.parent.version}</version>

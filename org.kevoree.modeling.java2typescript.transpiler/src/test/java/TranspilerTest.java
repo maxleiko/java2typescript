@@ -13,7 +13,7 @@ public class TranspilerTest {
     public static void main(String[] args) {
         String srcPath = Paths.get("org.kevoree.modeling.java2typescript.transpiler", "src", "test", "resources").toAbsolutePath().toString();
         String outPath = Paths.get("org.kevoree.modeling.java2typescript.transpiler", "target", "generated-sources", "java2ts").toString();
-        SourceTranslator translator = new SourceTranslator(srcPath, outPath);
+        SourceTranslator translator = new SourceTranslator(srcPath, outPath, "my-lib");
         System.out.println("Transpiling...");
         translator.process();
 //        translator.genExportAllFile("api");

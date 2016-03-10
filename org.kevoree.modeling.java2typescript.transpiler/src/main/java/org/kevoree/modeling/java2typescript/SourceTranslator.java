@@ -1,6 +1,5 @@
 package org.kevoree.modeling.java2typescript;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.intellij.openapi.util.io.FileUtil;
@@ -8,7 +7,6 @@ import com.intellij.psi.*;
 import org.apache.commons.io.IOUtils;
 import org.kevoree.modeling.java2typescript.helper.PathHelper;
 import org.kevoree.modeling.java2typescript.json.tsconfig.CompilerOptions;
-import org.kevoree.modeling.java2typescript.json.tsconfig.Files;
 import org.kevoree.modeling.java2typescript.json.tsconfig.TsConfig;
 import org.kevoree.modeling.java2typescript.translators.ClassTranslator;
 
@@ -16,24 +14,32 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SourceTranslator {
 
     private JavaAnalyzer analyzer;
     private String srcPath;
     private String outPath;
+    private String name;
     private PsiElementVisitor visitor;
     private Set<String> exports = new HashSet<>();
     private Set<String> javaClasses = new HashSet<>();
     private TranslationContext ctx;
 
-    public SourceTranslator(String srcPath, String outPath) {
+    public SourceTranslator(String srcPath, String outPath, String name) {
         analyzer = new JavaAnalyzer();
         this.srcPath = srcPath;
         this.outPath = outPath;
-//        String oPath = this.outPath + File.separator + "src" + File.separator + "main";
+        this.name = name;
         this.ctx = new TranslationContext(null, srcPath, outPath);
+    }
+
+    public JavaAnalyzer getAnalyzer() {
+        return this.analyzer;
     }
 
     public void process() {
@@ -68,7 +74,7 @@ public class SourceTranslator {
         };
         root.acceptChildren(visitor);
 
-        String[] modelPath = new String[] { "src", "main", "model.ts" };
+        String[] modelPath = new String[] { "src", "main", name+".ts" };
         String[] javaPath = new String[] { "src", "main", "java.ts" };
         File modelFile = Paths.get(outPath, modelPath).toFile();
         File javaFile = Paths.get(outPath, javaPath).toFile();
@@ -81,56 +87,32 @@ public class SourceTranslator {
             e.printStackTrace();
         }
 
-        if (!this.javaClasses.isEmpty()) {
-            File tsConfigFile = Paths.get(outPath, "tsconfig.json").toFile();
-            TsConfig tsConfig = new TsConfig();
-            // compilerOptions
-            CompilerOptions compilerOptions = new CompilerOptions();
-            compilerOptions.setTarget(CompilerOptions.Target.ES_5);
-            compilerOptions.setModule(CompilerOptions.Module.COMMONJS);
-            compilerOptions.setModuleResolution(CompilerOptions.ModuleResolution.NODE);
-            compilerOptions.setExperimentalDecorators(true);
-            compilerOptions.setEmitDecoratorMetadata(true);
-            compilerOptions.setNoImplicitAny(true);
-            compilerOptions.setDeclaration(true);
-            compilerOptions.setRemoveComments(true);
-            compilerOptions.setPreserveConstEnums(true);
-            compilerOptions.setSuppressImplicitAnyIndexErrors(true);
-            compilerOptions.setOutDir(URI.create("built"));
-            tsConfig.setCompilerOptions(compilerOptions);
-            // files
-            List<URI> files = new ArrayList<>();
-            files.add(URI.create(Paths.get("", modelPath).toString()));
-            if (!ctx.needsJava().isEmpty()) {
-                files.add(URI.create(Paths.get("", javaPath).toString()));
-            }
-            tsConfig.setFiles(files);
-            try {
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                FileUtil.writeToFile(tsConfigFile, gson.toJson(tsConfig, TsConfig.class).getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        File tsConfigFile = Paths.get(outPath, "tsconfig.json").toFile();
+        TsConfig tsConfig = new TsConfig();
+        // compilerOptions
+        CompilerOptions compilerOptions = new CompilerOptions();
+        compilerOptions.setTarget(CompilerOptions.Target.ES_5);
+        compilerOptions.setModule(CompilerOptions.Module.COMMONJS);
+        compilerOptions.setModuleResolution(CompilerOptions.ModuleResolution.NODE);
+        compilerOptions.setExperimentalDecorators(true);
+        compilerOptions.setEmitDecoratorMetadata(true);
+        compilerOptions.setNoImplicitAny(true);
+        compilerOptions.setDeclaration(true);
+        compilerOptions.setRemoveComments(true);
+        compilerOptions.setPreserveConstEnums(true);
+        compilerOptions.setSuppressImplicitAnyIndexErrors(true);
+        compilerOptions.setOutDir(URI.create("built"));
+        tsConfig.setCompilerOptions(compilerOptions);
+        // files
+        List<URI> files = new ArrayList<>();
+        files.add(URI.create(Paths.get("", modelPath).toString()));
+        if (!ctx.needsJava().isEmpty()) {
+            files.add(URI.create(Paths.get("", javaPath).toString()));
         }
-    }
-
-    public void genExportAllFile(String name) {
-        if (!name.endsWith(".ts")) {
-            name += ".ts";
-        }
-        File declFile = Paths.get(outPath, "src", "main", name).toFile();
-        StringBuilder exports = new StringBuilder();
-        Iterator<String> it = this.exports.iterator();
-        while (it.hasNext()) {
-            exports.append("export * from '.");
-            exports.append(it.next());
-            exports.append("';");
-            if (it.hasNext()) {
-                exports.append("\n");
-            }
-        }
+        tsConfig.setFiles(files);
         try {
-            FileUtil.writeToFile(declFile, exports.toString().getBytes());
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            FileUtil.writeToFile(tsConfigFile, gson.toJson(tsConfig, TsConfig.class).getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -167,14 +149,5 @@ public class SourceTranslator {
 
     private void visit(PsiElement elem) {
         System.out.println("Unknown file= "+elem);
-    }
-
-    private void createDirectory(PsiDirectory dir) {
-        String outPath = this.outPath + File.separator + "src" + File.separator + "main";
-        String path = PathHelper.getPath(srcPath, outPath, dir);
-        File dirFile = new File(path);
-        if (!dirFile.exists() && !dirFile.isFile()) {
-            dirFile.mkdirs();
-        }
     }
 }

@@ -1,0 +1,1 @@
+The goal of this module is to use the java2ts maven-plugin to confirm that everything works as expected

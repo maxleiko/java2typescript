@@ -29,7 +29,7 @@ public class AnonymousClassTranslator {
             }
             ctx.print("}");
         } else {
-            ctx.append("{");
+            ctx.append("{\n");
             ctx.increaseIdent();
             printClassMembers(element, ctx);
             ctx.decreaseIdent();
@@ -38,46 +38,24 @@ public class AnonymousClassTranslator {
     }
 
     private static void printClassMembers(PsiClass element, TranslationContext ctx) {
-        boolean isFirst = true;
-        PsiMethod[] methods = element.getAllMethods();
+        PsiMethod[] methods = element.getMethods();
         for (int i = 0; i < methods.length; i++) {
-            PsiMethod method = methods[i];
-            if (method instanceof ClsMethodImpl) {
-
+            ctx.print(methods[i].getName());
+            ctx.append(": function(");
+            printParameterList(methods[i], ctx);
+            ctx.append(") {\n");
+            if (methods[i].getBody() != null) {
+                ctx.increaseIdent();
+                CodeBlockTranslator.translate(methods[i].getBody(), ctx);
+                ctx.decreaseIdent();
+            }
+            ctx.print("}");
+            if (i < methods.length - 1) {
+                ctx.append(",\n");
             } else {
-                if (!isFirst) {
-                    ctx.append(", ");
-                } else {
-                    isFirst = false;
-                }
-                ctx.append(method.getName());
-                ctx.append(":function(");
-                printParameterList(method, ctx);
-                ctx.append("){\n");
-                if (method.getBody() != null) {
-                    CodeBlockTranslator.translate(method.getBody(), ctx);
-                }
-                ctx.append("}");
+                ctx.append("\n");
             }
         }
-        /*
-        PsiField[] fields = element.getAllFields();
-        for (int i = 0; i < fields.length; i++) {
-            PsiField field = fields[i];
-            if (!isFirst) {
-                ctx.append(", ");
-            } else {
-                isFirst = false;
-            }
-            ctx.append(field.getName());
-            ctx.append(": ");
-            ctx.append(TypeHelper.printType(field.getType(), ctx));
-            if (field.hasInitializer()) {
-                ctx.append(" = ");
-                ExpressionTranslator.translate(field.getInitializer(), ctx);
-                ctx.append(";\n");
-            }
-        }*/
     }
 
     private static void printParameterList(PsiMethod element, TranslationContext ctx) {
