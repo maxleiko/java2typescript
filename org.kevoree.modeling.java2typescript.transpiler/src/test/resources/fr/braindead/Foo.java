@@ -24,4 +24,8 @@ public class Foo<T> {
     }
 
     private static void yolo() {}
+
+    public class InnerFoo {
+        public void yolo() {}
+    }
 }

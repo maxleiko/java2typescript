@@ -1,3 +1,4 @@
+import org.junit.Test;
 import org.kevoree.modeling.java2typescript.SourceTranslator;
 
 import java.io.IOException;
@@ -9,13 +10,13 @@ import java.nio.file.Paths;
  */
 public class TranspilerTest {
 
-    public static void main(String[] args) throws IOException {
-        String srcPath = Paths.get("src", "test", "resources").toAbsolutePath().toString();
-        String outPath = Paths.get("target", "out", "ts").toString();
+    public static void main(String[] args) {
+        String srcPath = Paths.get("org.kevoree.modeling.java2typescript.transpiler", "src", "test", "resources").toAbsolutePath().toString();
+        String outPath = Paths.get("org.kevoree.modeling.java2typescript.transpiler", "target", "generated-sources", "java2ts").toString();
         SourceTranslator translator = new SourceTranslator(srcPath, outPath);
         System.out.println("Transpiling...");
         translator.process();
-        translator.genExportAllFile("api");
+//        translator.genExportAllFile("api");
         System.out.println("Done");
     }
 }

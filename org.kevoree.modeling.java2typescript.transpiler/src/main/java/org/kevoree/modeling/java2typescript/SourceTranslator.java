@@ -1,18 +1,22 @@
 package org.kevoree.modeling.java2typescript;
 
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.*;
+import org.apache.commons.io.IOUtils;
 import org.kevoree.modeling.java2typescript.helper.PathHelper;
+import org.kevoree.modeling.java2typescript.json.tsconfig.CompilerOptions;
+import org.kevoree.modeling.java2typescript.json.tsconfig.Files;
+import org.kevoree.modeling.java2typescript.json.tsconfig.TsConfig;
 import org.kevoree.modeling.java2typescript.translators.ClassTranslator;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Scanner;
-import java.util.Set;
+import java.net.URI;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class SourceTranslator {
 
@@ -22,11 +26,14 @@ public class SourceTranslator {
     private PsiElementVisitor visitor;
     private Set<String> exports = new HashSet<>();
     private Set<String> javaClasses = new HashSet<>();
+    private TranslationContext ctx;
 
     public SourceTranslator(String srcPath, String outPath) {
         analyzer = new JavaAnalyzer();
         this.srcPath = srcPath;
         this.outPath = outPath;
+//        String oPath = this.outPath + File.separator + "src" + File.separator + "main";
+        this.ctx = new TranslationContext(null, srcPath, outPath);
     }
 
     public void process() {
@@ -61,16 +68,49 @@ public class SourceTranslator {
         };
         root.acceptChildren(visitor);
 
-        if (!this.javaClasses.isEmpty()) {
-            System.out.println("Your code needs \"java\" as dependency");
-            System.out.println("Because of:");
-            for (String clazz: this.javaClasses) {
-                System.out.println("  "+clazz);
+        String[] modelPath = new String[] { "src", "main", "model.ts" };
+        String[] javaPath = new String[] { "src", "main", "java.ts" };
+        File modelFile = Paths.get(outPath, modelPath).toFile();
+        File javaFile = Paths.get(outPath, javaPath).toFile();
+        try {
+            if (!ctx.needsJava().isEmpty()) {
+                FileUtil.writeToFile(javaFile, IOUtils.toByteArray(getClass().getResourceAsStream("/java.ts")));
             }
-            System.out.println();
-            System.out.println("You can install it with npm:");
-            System.out.println("  npm i kmf-java");
-            System.out.println();
+            FileUtil.writeToFile(modelFile, ctx.toString().getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (!this.javaClasses.isEmpty()) {
+            File tsConfigFile = Paths.get(outPath, "tsconfig.json").toFile();
+            TsConfig tsConfig = new TsConfig();
+            // compilerOptions
+            CompilerOptions compilerOptions = new CompilerOptions();
+            compilerOptions.setTarget(CompilerOptions.Target.ES_5);
+            compilerOptions.setModule(CompilerOptions.Module.COMMONJS);
+            compilerOptions.setModuleResolution(CompilerOptions.ModuleResolution.NODE);
+            compilerOptions.setExperimentalDecorators(true);
+            compilerOptions.setEmitDecoratorMetadata(true);
+            compilerOptions.setNoImplicitAny(true);
+            compilerOptions.setDeclaration(true);
+            compilerOptions.setRemoveComments(true);
+            compilerOptions.setPreserveConstEnums(true);
+            compilerOptions.setSuppressImplicitAnyIndexErrors(true);
+            compilerOptions.setOutDir(URI.create("built"));
+            tsConfig.setCompilerOptions(compilerOptions);
+            // files
+            List<URI> files = new ArrayList<>();
+            files.add(URI.create(Paths.get("", modelPath).toString()));
+            if (!ctx.needsJava().isEmpty()) {
+                files.add(URI.create(Paths.get("", javaPath).toString()));
+            }
+            tsConfig.setFiles(files);
+            try {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                FileUtil.writeToFile(tsConfigFile, gson.toJson(tsConfig, TsConfig.class).getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -78,7 +118,7 @@ public class SourceTranslator {
         if (!name.endsWith(".ts")) {
             name += ".ts";
         }
-        File declFile = new File(outPath + File.separator + name);
+        File declFile = Paths.get(outPath, "src", "main", name).toFile();
         StringBuilder exports = new StringBuilder();
         Iterator<String> it = this.exports.iterator();
         while (it.hasNext()) {
@@ -97,16 +137,22 @@ public class SourceTranslator {
     }
 
     private void visit(PsiDirectory dir) {
-        createDirectory(dir);
+        ctx.print("export namespace ");
+        ctx.append(dir.getName());
+        ctx.append(" {\n");
+        ctx.increaseIdent();
         dir.acceptChildren(visitor);
+        ctx.decreaseIdent();
+        ctx.print("}\n");
     }
 
     private void visit(PsiJavaFile file) {
+        String outPath = this.outPath + File.separator + "src" + File.separator + "main";
         String path = PathHelper.getPath(srcPath, outPath, file);
         exports.add(path.substring(outPath.length()));
-        File tsFile = new File(path);
 
-        TranslationContext ctx = new TranslationContext(file, this.srcPath, this.outPath);
+//        TranslationContext ctx = new TranslationContext(file, this.srcPath, outPath);
+        ctx.setFile(file);
         file.acceptChildren(new PsiElementVisitor() {
             @Override
             public void visitElement(PsiElement element) {
@@ -117,12 +163,6 @@ public class SourceTranslator {
         });
 
         this.javaClasses.addAll(ctx.needsJava());
-
-        try {
-            FileUtil.writeToFile(tsFile, ctx.toString().getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void visit(PsiElement elem) {
@@ -130,6 +170,7 @@ public class SourceTranslator {
     }
 
     private void createDirectory(PsiDirectory dir) {
+        String outPath = this.outPath + File.separator + "src" + File.separator + "main";
         String path = PathHelper.getPath(srcPath, outPath, dir);
         File dirFile = new File(path);
         if (!dirFile.exists() && !dirFile.isFile()) {

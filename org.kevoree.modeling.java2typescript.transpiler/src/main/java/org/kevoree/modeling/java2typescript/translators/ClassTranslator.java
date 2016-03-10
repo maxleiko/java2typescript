@@ -10,24 +10,24 @@ import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.metas.DocMeta;
 
+import java.util.Iterator;
+
 public class ClassTranslator {
 
     public static void translate(PsiClass clazz, TranslationContext ctx) {
-        ImportHelper.importIfValid(clazz, ctx);
+//        ImportHelper.importIfValid(clazz, ctx);
 
         boolean ignoreClass = false;
         boolean nativeActivated = false;
         PsiDocComment comment = clazz.getDocComment();
         if (comment != null) {
             PsiDocTag[] tags = comment.getTags();
-            if (tags != null) {
-                for (PsiDocTag tag : tags) {
-                    if (tag.getName().equals(NativeTsTranslator.TAG_IGNORE) && tag.getValueElement() != null && tag.getValueElement().getText().equals(NativeTsTranslator.TAG_VAL_TS)) {
-                        ignoreClass = true;
-                    }
-                    if (tag.getName().equals(NativeTsTranslator.TAG) && tag.getValueElement() != null && tag.getValueElement().getText().equals(NativeTsTranslator.TAG_VAL_TS)) {
-                        nativeActivated = true;
-                    }
+            for (PsiDocTag tag : tags) {
+                if (tag.getName().equals(NativeTsTranslator.TAG_IGNORE) && tag.getValueElement() != null && tag.getValueElement().getText().equals(NativeTsTranslator.TAG_VAL_TS)) {
+                    ignoreClass = true;
+                }
+                if (tag.getName().equals(NativeTsTranslator.TAG) && tag.getValueElement() != null && tag.getValueElement().getText().equals(NativeTsTranslator.TAG_VAL_TS)) {
+                    nativeActivated = true;
                 }
             }
         }
@@ -57,7 +57,7 @@ public class ClassTranslator {
             ctx.append(" implements ");
             writeTypeList(ctx, implementsList);
         }
-        ctx.append(" {\n\n");
+        ctx.append(" {\n");
 
         if (!nativeActivated) {
             printClassMembers(clazz, ctx);
@@ -68,7 +68,6 @@ public class ClassTranslator {
         }
 
         ctx.print("}\n");
-        ctx.append("\n");
         printInnerClasses(clazz, ctx);
     }
 
@@ -84,11 +83,16 @@ public class ClassTranslator {
         }
 
         if (innerClasses.length > 0 && atLeastOne) {
-            ctx.print("export module ").append(element.getName()).append(" { \n");
+            ctx.print("export module ");
+            ctx.append(element.getName());
+            ctx.append(" {\n");
             ctx.increaseIdent();
-            for (PsiClass innerClass : innerClasses) {
+            for (int i=0; i < innerClasses.length; i++) {
+                PsiClass innerClass = innerClasses[i];
                 translate(innerClass, ctx);
-                ctx.append("\n");
+                if (i < innerClasses.length-1) {
+                    ctx.append("\n");
+                }
             }
             ctx.decreaseIdent();
             ctx.print("}\n");
@@ -170,7 +174,7 @@ public class ClassTranslator {
     private static void writeTypeList(TranslationContext ctx, PsiClassType[] typeList) {
         for (int i = 0; i < typeList.length; i++) {
             PsiClassType type = typeList[i];
-            ImportHelper.importIfValid(type.resolve(), ctx);
+//            ImportHelper.importIfValid(type.resolve(), ctx);
             ctx.append(TypeHelper.printType(type, ctx, true, true, false));
             if (i != typeList.length - 1) {
                 ctx.append(", ");

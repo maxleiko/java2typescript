@@ -26,7 +26,7 @@ public class ReferenceExpressionTranslator {
                 if (resolution instanceof PsiField) {
                     PsiField field = (PsiField) resolution;
                     if (field.getModifierList() != null && field.getModifierList().hasModifierProperty("static")) {
-                        qualifier = field.getContainingClass().getName();
+                        qualifier = field.getContainingClass().getQualifiedName();
                     }
                     ctx.append(qualifier).append('.');
                 } else if (resolution instanceof PsiMethod) {
@@ -38,7 +38,7 @@ public class ReferenceExpressionTranslator {
                         ctx.append(qualifier).append('.');
                     }
                 } else if (resolution instanceof PsiClass) {
-                    ImportHelper.importIfValid(resolution, ctx);
+//                    ImportHelper.importIfValid(resolution, ctx);
                 }
             }
         }
@@ -48,7 +48,12 @@ public class ReferenceExpressionTranslator {
                 ctx.append(element.getReferenceName());
             }
         } else {
-            ctx.append(TypeHelper.primitiveStaticCall(element.getReferenceName()));
+            if (element.getReference() != null && element.getReference().resolve() instanceof PsiClass) {
+                PsiClass clazz = (PsiClass) element.getReference().resolve();
+                ctx.append(TypeHelper.primitiveStaticCall(clazz.getQualifiedName()));
+            } else {
+                ctx.append(TypeHelper.primitiveStaticCall(element.getReferenceName()));
+            }
         }
     }
 

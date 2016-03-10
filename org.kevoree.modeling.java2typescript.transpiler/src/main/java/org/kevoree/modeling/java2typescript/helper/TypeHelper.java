@@ -29,7 +29,7 @@ public class TypeHelper {
         }
 
         if (result.contains("?")) {
-            System.out.println("TypeHelper: Java wildcard converted to \"any\" for \""+ element.getPresentableText()+"\"");
+            System.out.println("TypeHelper: <?> converted to <any> for "+ element.getPresentableText()+" in "+PathHelper.lastPart(ctx));
             return "any";
         }
 
@@ -52,24 +52,24 @@ public class TypeHelper {
             }
         }
         if (element instanceof PsiPrimitiveType) {
-            if (result == null || result.equals("null")) {
+            if (result.equals("null")) {
                 System.err.println("TypeHelper::printType -> Result null with elem:" + element.toString());
             }
             return result;
         } else if (element instanceof PsiArrayType) {
             PsiArrayType typedElement = (PsiArrayType) element;
             String partialResult = printType(typedElement.getComponentType(), ctx, true, false, true);
-            result = partialResult + "[]";
+            if (withGenericParams) {
+                result = partialResult + "[]";
+            } else {
+                result = partialResult;
+            }
             return result;
         } else if (element instanceof PsiClassReferenceType) {
             PsiClassReferenceType elementClassRefType = ((PsiClassReferenceType) element);
             PsiClass resolvedClass = elementClassRefType.resolve();
-
             if (resolvedClass != null) {
-                String qualifiedName = resolvedClass.getName();
-                if (qualifiedName != null) {
-                    result = resolvedClass.getName();
-                }
+                result = resolvedClass.getQualifiedName();
                 if (withGenericParams) {
                     PsiTypeParameter[] typeParameters = resolvedClass.getTypeParameters();
                     PsiType[] referenceParameters = elementClassRefType.getParameters();
@@ -95,7 +95,7 @@ public class TypeHelper {
             } else {
                 String tryJavaUtil = javaTypes.get(elementClassRefType.getClassName());
                 if (tryJavaUtil != null) {
-                    ctx.addImport("* as java", "java");
+//                    ctx.addImport("java", "java");
                     ctx.needsJava(tryJavaUtil);
                     result = tryJavaUtil;
                 } else {
@@ -109,6 +109,8 @@ public class TypeHelper {
                             generics[i] = printType(genericTypes[i], ctx);
                         }
                         result += "<" + String.join(", ", generics) + ">";
+                    } else {
+                        result += "<any>";
                     }
                 }
             }
@@ -117,7 +119,8 @@ public class TypeHelper {
         }
 
         if (result == null || result.equals("null")) {
-            System.err.println("TypeHelper::printType -> Result null with elem:" + element.toString());
+            // this is kind of desperate but well...
+            result = element.getPresentableText();
         }
 
         return result;

@@ -6,6 +6,8 @@ import com.intellij.psi.PsiJavaFile;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  *
@@ -27,5 +29,10 @@ public class PathHelper {
 
     public static String getPath(TranslationContext ctx, PsiJavaFile file) {
         return getPath(ctx.getSrcPath(), ctx.getOutPath(), file);
+    }
+
+    public static String lastPart(TranslationContext ctx) {
+        String path = ctx.getFile().getVirtualFile().getPath();
+        return path.substring(ctx.getSrcPath().length()+1);
     }
 }

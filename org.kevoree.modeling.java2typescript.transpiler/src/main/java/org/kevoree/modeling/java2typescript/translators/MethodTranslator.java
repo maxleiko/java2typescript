@@ -58,12 +58,12 @@ public class MethodTranslator {
             }
             paramSB.append(parameter.getName());
             paramSB.append(": ");
-            if (parameter.getType() instanceof PsiClassReferenceType) {
-                PsiElement resolution = ((PsiClassReferenceType) parameter.getType()).getReference().resolve();
-                if (resolution != null) {
-                    ImportHelper.importIfValid(resolution, ctx);
-                }
-            }
+//            if (parameter.getType() instanceof PsiClassReferenceType) {
+//                PsiElement resolution = ((PsiClassReferenceType) parameter.getType()).getReference().resolve();
+//                if (resolution != null) {
+//                    ImportHelper.importIfValid(resolution, ctx);
+//                }
+//            }
             paramSB.append(TypeHelper.printType(parameter.getType(), ctx));
             params.add(paramSB.toString());
         }
@@ -75,26 +75,29 @@ public class MethodTranslator {
         }
         if (!containingClass.isInterface()) {
             if (method.getBody() == null) {
-                ctx.append(";");
+                ctx.append(";\n");
             } else {
-                ctx.append(" {\n");
-                ctx.increaseIdent();
-                if (!docMeta.nativeActivated) {
-                    if (method.getBody() == null) {
-                        ctx.print("throw \"Empty body\";\n");
+                ctx.append(" {");
+                if (method.getBody().getStatements().length > 0) {
+                    ctx.append("\n");
+                    ctx.increaseIdent();
+                    if (!docMeta.nativeActivated) {
+                        if (method.getBody() == null) {
+                            ctx.print("throw \"Empty body\";\n");
+                        } else {
+                            CodeBlockTranslator.translate(method.getBody(), ctx);
+                        }
                     } else {
-                        CodeBlockTranslator.translate(method.getBody(), ctx);
+                        NativeTsTranslator.translate(method.getDocComment(), ctx);
                     }
+                    ctx.decreaseIdent();
+                    ctx.print("}\n");
                 } else {
-                    NativeTsTranslator.translate(method.getDocComment(), ctx);
+                    ctx.append("}\n");
                 }
-                ctx.decreaseIdent();
-                ctx.print("}\n");
             }
         } else {
             ctx.append(";\n");
         }
-        ctx.append("\n");
     }
-
 }

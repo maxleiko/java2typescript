@@ -12,8 +12,8 @@ public class NewExpressionTranslator {
     public static void translate(PsiNewExpression element, TranslationContext ctx) {
         PsiAnonymousClass anonymousClass = element.getAnonymousClass();
         if (anonymousClass != null) {
-            PsiElement resolution = anonymousClass.getBaseClassReference().resolve();
-            ImportHelper.importIfValid(resolution, ctx);
+//            PsiElement resolution = anonymousClass.getBaseClassReference().resolve();
+//            ImportHelper.importIfValid(resolution, ctx);
             AnonymousClassTranslator.translate(anonymousClass, ctx);
         } else {
             boolean arrayDefinition = false;
@@ -24,7 +24,7 @@ public class NewExpressionTranslator {
                 className = TypeHelper.printType(element.getType(), ctx);
 
                 if (resolution != null) {
-                    ImportHelper.importIfValid(resolution, ctx);
+//                    ImportHelper.importIfValid(resolution, ctx);
                     String genName = ImportHelper.getGeneratedName(resolution, ctx);
                     if (genName != null) {
                         className = genName;
@@ -43,13 +43,11 @@ public class NewExpressionTranslator {
                 arrayDefinition = true;
             }
             if (!arrayDefinition) {
-                if (anonymousClass == null) {
-                    ctx.append("new ").append(className).append('(');
-                    if (element.getArgumentList() != null) {
-                        ExpressionListTranslator.translate(element.getArgumentList(), ctx);
-                    }
-                    ctx.append(')');
+                ctx.append("new ").append(className).append('(');
+                if (element.getArgumentList() != null) {
+                    ExpressionListTranslator.translate(element.getArgumentList(), ctx);
                 }
+                ctx.append(')');
             } else {
                 if (arrayInitializer != null) {
                     boolean hasToBeClosed;
@@ -93,14 +91,19 @@ public class NewExpressionTranslator {
                             ExpressionTranslator.translate(element.getArrayDimensions()[0], ctx);
                             ctx.append(")");
                         } else {
-                            ctx.append("new Array()");
+                            ctx.append("new Array<");
+//                            ctx.append(element.getType().getPresentableText().substring(0, element.getType().getPresentableText().length()-2));
+                            ctx.append(TypeHelper.printType(element.getType(), ctx, false, false, false));
+                            ctx.append(">(");
+                            ExpressionTranslator.translate(element.getArrayDimensions()[0], ctx);
+                            ctx.append(")");
                         }
                     } else {
                         for (int i = 0; i < dimensionCount; i++) {
-                            ctx.append("new Array(");
+                            ctx.append("[");
                         }
                         for (int i = 0; i < dimensionCount; i++) {
-                            ctx.append(")");
+                            ctx.append("]");
                         }
                     }
                 }

@@ -12,47 +12,47 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>Compile TypeScript: global</id>
-                        <phase>compile</phase>
-                        <configuration>
-                            <tasks>
-                                <exec dir="/home/leiko/.nvm/versions/node/v4.2.2/bin" executable="node" failonerror="true">
-                                    <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js"/>
-                                    <arg line="-p"/>
-                                    <arg line="${project.basedir}/src/main/ts"/>
-                                </exec>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>Compile TypeScript: global-test</id>
-                        <phase>compile</phase>
-                        <configuration>
-                            <tasks>
-                                <exec dir="/home/leiko/.nvm/versions/node/v4.2.2/bin" executable="node" failonerror="true">
-                                    <arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js"/>
-                                    <arg line="-p"/>
-                                    <arg line="${project.basedir}/src/test/ts"/>
-                                </exec>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <!--<build>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<artifactId>maven-antrun-plugin</artifactId>-->
+                <!--<version>1.7</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>Compile TypeScript: global</id>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<exec dir="/home/leiko/.nvm/versions/node/v4.2.2/bin" executable="node" failonerror="true">-->
+                                    <!--<arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js"/>-->
+                                    <!--<arg line="-p"/>-->
+                                    <!--<arg line="${project.basedir}/src/main/ts"/>-->
+                                <!--</exec>-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>Compile TypeScript: global-test</id>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<exec dir="/home/leiko/.nvm/versions/node/v4.2.2/bin" executable="node" failonerror="true">-->
+                                    <!--<arg line="${project.basedir}/../org.kevoree.modeling.java2typescript.mavenplugin/src/main/resources/tsc.js"/>-->
+                                    <!--<arg line="-p"/>-->
+                                    <!--<arg line="${project.basedir}/src/test/ts"/>-->
+                                <!--</exec>-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</build>-->
 
 </project>

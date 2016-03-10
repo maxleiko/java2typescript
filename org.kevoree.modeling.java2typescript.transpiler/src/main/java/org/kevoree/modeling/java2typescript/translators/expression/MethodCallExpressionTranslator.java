@@ -32,8 +32,7 @@ public class MethodCallExpressionTranslator {
             ctx.append("console.error(");
             ExpressionTranslator.translate(element.getMethodExpression().getQualifierExpression(), ctx);
             ctx.append("['stack'])");
-//        } else if (element.getMethodExpression().getText().contains(".getClass")) {
-//            ctx.append(element.getMethodExpression().getText().replace(".getClass", ".prototype"));
+
         } else {
             ReferenceExpressionTranslator.translate(element.getMethodExpression(), ctx);
             if (!element.getMethodExpression().toString().endsWith(".length")) {

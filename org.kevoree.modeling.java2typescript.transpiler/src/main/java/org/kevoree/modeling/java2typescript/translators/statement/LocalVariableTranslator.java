@@ -1,7 +1,9 @@
 package org.kevoree.modeling.java2typescript.translators.statement;
 
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.helper.ImportHelper;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.translators.expression.ExpressionTranslator;
 
@@ -30,6 +32,7 @@ public class LocalVariableTranslator {
         if (element.hasInitializer() && element.getInitializer() != null && element.getInitializer().getType() != null) {
             if (!element.getType().toString().equals(element.getInitializer().getType().toString())) {
                 ctx.append(": ");
+//                ImportHelper.importIfValid(((PsiClassReferenceType) element.getType()).resolve(), ctx);
                 ctx.append(TypeHelper.printType(element.getType(), ctx));
             }
             ctx.append(" = ");

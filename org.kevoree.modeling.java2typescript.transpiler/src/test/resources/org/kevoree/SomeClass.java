@@ -6,7 +6,7 @@ import fr.braindead.MyInterface;
  *
  * Created by leiko on 06/11/15.
  */
-public class OtherClass extends fr.braindead.MyClass implements MyInterface {
+public class SomeClass extends fr.braindead.MyClass implements MyInterface {
 
     @Override
     public void foo() {

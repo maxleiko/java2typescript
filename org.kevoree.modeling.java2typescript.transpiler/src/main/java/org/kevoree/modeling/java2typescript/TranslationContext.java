@@ -14,8 +14,8 @@ public class TranslationContext {
     public boolean NATIVE_ARRAY = true;
 
     private StringBuilder sb = new StringBuilder();
-    private static final int identSize = 4;
-    private int ident = 0;
+    private static final int identSize = 2;
+    private int indent = 0;
     private PsiJavaFile file;
     private String srcPath;
     private String outPath;
@@ -31,24 +31,24 @@ public class TranslationContext {
     }
 
     public void increaseIdent() {
-        ident += identSize;
+        indent += identSize;
     }
 
     public void decreaseIdent() {
-        ident -= identSize;
-        if (ident < 0) {
-            throw new IllegalStateException("Decrease ident was called more times than increase");
+        indent -= identSize;
+        if (indent < 0) {
+            throw new IllegalStateException("Decrease indent was called more times than increase");
         }
     }
 
     public TranslationContext print(String str) {
-        ident();
+        indent();
         sb.append(str);
         return this;
     }
 
     public TranslationContext print(char str) {
-        ident();
+        indent();
         sb.append(str);
         return this;
     }
@@ -82,11 +82,8 @@ public class TranslationContext {
         return this.generatedNames.get(clazz + "_" + fromFile);
     }
 
-    public TranslationContext ident() {
-        for (int i = 0; i < ident; i++) {
-            sb.append(' ');
-        }
-        return this;
+    public void setFile(PsiJavaFile file) {
+        this.file = file;
     }
 
     public PsiJavaFile getFile() {
@@ -117,6 +114,15 @@ public class TranslationContext {
 
     @Override
     public String toString() {
+        if (!this.javaClasses.isEmpty()) {
+            String javaImport = "import * as java from './java';";
+            if (this.imports.isEmpty()) {
+                sb.insert(0, javaImport+"\n");
+            } else {
+                sb.insert(0, javaImport);
+            }
+        }
+
         if (!this.imports.isEmpty()) {
             StringBuilder imports = new StringBuilder();
             imports.append("import ");
@@ -161,5 +167,12 @@ public class TranslationContext {
 
     public String getOutPath() {
         return outPath;
+    }
+
+    private TranslationContext indent() {
+        for (int i = 0; i < indent; i++) {
+            sb.append(' ');
+        }
+        return this;
     }
 }
