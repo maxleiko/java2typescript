@@ -11,9 +11,6 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * JSON schema for the TypeScript compiler's configuration file
- * <p>
- * 
- * 
  */
 @Generated("org.jsonschema2pojo")
 public class TsConfig {
