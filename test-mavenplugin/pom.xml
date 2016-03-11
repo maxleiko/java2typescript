@@ -1,17 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>org.kevoree.modeling.java2typescript.root</artifactId>
-        <groupId>org.kevoree.modeling</groupId>
-        <version>48-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>test-mavenplugin</artifactId>
+    <artifactId>java2ts-test-mavenplugin</artifactId>
     <packaging>jar</packaging>
+    <name>Java2Ts :: Test-MavenPlugin</name>
 
-    <name>test-mavenplugin</name>
-    <url>http://maven.apache.org</url>
+    <parent>
+        <groupId>org.kevoree.modeling</groupId>
+        <artifactId>java2ts-root</artifactId>
+        <version>48-SNAPSHOT</version>
+    </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -35,8 +34,8 @@
         <plugins>
             <plugin>
                 <groupId>org.kevoree.modeling</groupId>
-                <artifactId>org.kevoree.modeling.java2typescript.mavenplugin</artifactId>
-                <version>${parent.version}</version>
+                <artifactId>java2ts-mavenplugin</artifactId>
+                <version>${project.parent.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -44,6 +43,17 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <name>dummy-lib</name>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.1</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
