@@ -68,7 +68,7 @@ public class TsConfig {
     }
 
     public TsConfig withFiles(List<URI> files) {
-        this.files = files;
+        this.files.addAll(files);
         return this;
     }
 
@@ -93,7 +93,7 @@ public class TsConfig {
     }
 
     public TsConfig withExclude(List<URI> exclude) {
-        this.exclude = exclude;
+        this.exclude.addAll(exclude);
         return this;
     }
 

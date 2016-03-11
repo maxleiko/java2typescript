@@ -92,8 +92,7 @@ public class NewExpressionTranslator {
                             ctx.append(")");
                         } else {
                             ctx.append("new Array<");
-//                            ctx.append(element.getType().getPresentableText().substring(0, element.getType().getPresentableText().length()-2));
-                            ctx.append(TypeHelper.printType(element.getType(), ctx, false, false, false));
+                            ctx.append(TypeHelper.printType(element.getType(), ctx, true, false));
                             ctx.append(">(");
                             ExpressionTranslator.translate(element.getArrayDimensions()[0], ctx);
                             ctx.append(")");

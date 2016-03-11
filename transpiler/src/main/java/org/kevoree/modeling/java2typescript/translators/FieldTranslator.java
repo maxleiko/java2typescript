@@ -51,10 +51,6 @@ public class FieldTranslator {
             ctx.append("static ");
         }
         ctx.append(element.getName()).append(": ");
-        if (element.getType() instanceof PsiClassReferenceType) {
-            PsiElement resolution = ((PsiClassReferenceType) element.getType()).getReference().resolve();
-//            ImportHelper.importIfValid(resolution, ctx);
-        }
         ctx.append(TypeHelper.printType(element.getType(), ctx));
         if (element.hasInitializer()) {
             ctx.append(" = ");

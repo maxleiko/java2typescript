@@ -18,10 +18,10 @@ import java.util.Set;
 public class TypeHelper {
 
     public static String printType(PsiType element, TranslationContext ctx) {
-        return printType(element, ctx, true, false, false);
+        return printType(element, ctx, true, false);
     }
 
-    public static String printType(PsiType element, TranslationContext ctx, boolean withGenericParams, boolean explicitType, boolean avoidNativeOptim) {
+    public static String printType(PsiType element, TranslationContext ctx, boolean withGenericParams, boolean avoidNativeOptim) {
         String result = element.getPresentableText();
 
         if (result.equals("Throwable") || result.equals("Exception") || result.equals("RuntimeException") || result.equals("IndexOutOfBoundsException")) {
@@ -58,7 +58,7 @@ public class TypeHelper {
             return result;
         } else if (element instanceof PsiArrayType) {
             PsiArrayType typedElement = (PsiArrayType) element;
-            String partialResult = printType(typedElement.getComponentType(), ctx, true, false, true);
+            String partialResult = printType(typedElement.getComponentType(), ctx, withGenericParams, avoidNativeOptim);
             if (withGenericParams) {
                 result = partialResult + "[]";
             } else {
@@ -110,7 +110,9 @@ public class TypeHelper {
                         }
                         result += "<" + String.join(", ", generics) + ">";
                     } else {
-                        result += "<any>";
+                        if (((PsiClassReferenceType) element).getReference().getText().contains("<")) {
+                            result += "<any>";
+                        }
                     }
                 }
             }

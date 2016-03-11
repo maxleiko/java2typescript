@@ -9,7 +9,7 @@ public class InstanceOfExpressionTranslator {
 
     public static void translate(PsiInstanceOfExpression element, TranslationContext ctx) {
         ExpressionTranslator.translate(element.getOperand(), ctx);
-        ctx.append(" instanceof ").append(TypeHelper.printType(element.getCheckType().getType(), ctx,false,false, false));
+        ctx.append(" instanceof ").append(TypeHelper.printType(element.getCheckType().getType(), ctx, false, false));
     }
 
 }

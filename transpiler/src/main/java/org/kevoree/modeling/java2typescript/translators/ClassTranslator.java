@@ -12,8 +12,6 @@ import org.kevoree.modeling.java2typescript.metas.DocMeta;
 public class ClassTranslator {
 
     public static void translate(PsiClass clazz, TranslationContext ctx) {
-//        ImportHelper.importIfValid(clazz, ctx);
-
         boolean ignoreClass = false;
         boolean nativeActivated = false;
         PsiDocComment comment = clazz.getDocComment();
@@ -171,8 +169,7 @@ public class ClassTranslator {
     private static void writeTypeList(TranslationContext ctx, PsiClassType[] typeList) {
         for (int i = 0; i < typeList.length; i++) {
             PsiClassType type = typeList[i];
-//            ImportHelper.importIfValid(type.resolve(), ctx);
-            ctx.append(TypeHelper.printType(type, ctx, true, true, false));
+            ctx.append(TypeHelper.printType(type, ctx, true, false));
             if (i != typeList.length - 1) {
                 ctx.append(", ");
             }

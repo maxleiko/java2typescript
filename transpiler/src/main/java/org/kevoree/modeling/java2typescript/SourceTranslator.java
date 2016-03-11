@@ -21,38 +21,22 @@ import java.util.Set;
 
 public class SourceTranslator {
 
+    private JavaAnalyzer analyzer;
     private String srcPath;
     private String outPath;
     private String name;
     private PsiElementVisitor visitor;
-    private Set<String> exports = new HashSet<>();
-    private Set<String> javaClasses = new HashSet<>();
     private TranslationContext ctx;
+    private TsConfig tsConfig;
 
     public SourceTranslator(String srcPath, String outPath, String name) {
+        this.analyzer = new JavaAnalyzer();
         this.srcPath = srcPath;
         this.outPath = outPath;
         this.name = name;
         this.ctx = new TranslationContext(null, srcPath, outPath);
-    }
-
-    public void process() {
-        File srcFolder = new File(this.srcPath);
-        File outFolder = new File(this.outPath);
-        if (srcFolder.exists()) {
-            if (srcFolder.isFile()) {
-                throw new IllegalArgumentException("Source path is not a directory");
-            }
-        } else {
-            throw new IllegalArgumentException("Source path "+srcPath+" does not exists");
-        }
-        if (outFolder.exists()) {
-            FileUtil.delete(outFolder);
-        }
-        outFolder.mkdirs();
-
-        JavaAnalyzer analyzer = new JavaAnalyzer();
-        PsiDirectory root = analyzer.analyze(srcFolder);
+        this.tsConfig = new TsConfig();
+        initTsConfig();
         this.visitor = new PsiElementVisitor() {
             @Override
             public void visitElement(PsiElement element) {
@@ -67,8 +51,28 @@ public class SourceTranslator {
                 }
             }
         };
-        root.acceptChildren(visitor);
+    }
 
+    public void process() {
+        File srcFolder = new File(this.srcPath);
+        if (srcFolder.exists()) {
+            if (srcFolder.isFile()) {
+                throw new IllegalArgumentException("Source path is not a directory");
+            }
+        } else {
+            throw new IllegalArgumentException("Source path "+srcPath+" does not exists");
+        }
+        File outFolder = new File(this.outPath);
+        if (outFolder.exists()) {
+            FileUtil.delete(outFolder);
+        }
+        outFolder.mkdirs();
+
+        PsiDirectory root = analyzer.analyze(srcFolder);
+        root.acceptChildren(visitor);
+    }
+
+    public void generate() {
         String[] modelPath = new String[] { "src", "main", name+".ts" };
         String[] javaPath = new String[] { "src", "main", "java.ts"};
         File modelFile = Paths.get(outPath, modelPath).toFile();
@@ -83,28 +87,13 @@ public class SourceTranslator {
         }
 
         File tsConfigFile = Paths.get(outPath, "tsconfig.json").toFile();
-        TsConfig tsConfig = new TsConfig();
-        // compilerOptions
-        CompilerOptions compilerOptions = new CompilerOptions();
-        compilerOptions.setTarget(CompilerOptions.Target.ES_5);
-        compilerOptions.setModule(CompilerOptions.Module.COMMONJS);
-        compilerOptions.setModuleResolution(CompilerOptions.ModuleResolution.NODE);
-        compilerOptions.setExperimentalDecorators(true);
-        compilerOptions.setEmitDecoratorMetadata(true);
-        compilerOptions.setNoImplicitAny(true);
-        compilerOptions.setDeclaration(true);
-        compilerOptions.setRemoveComments(true);
-        compilerOptions.setPreserveConstEnums(true);
-        compilerOptions.setSuppressImplicitAnyIndexErrors(true);
-        compilerOptions.setOutDir(URI.create("built"));
-        tsConfig.setCompilerOptions(compilerOptions);
         // files
         List<URI> files = new ArrayList<>();
         files.add(URI.create(Paths.get("", modelPath).toString()));
         if (!ctx.needsJava().isEmpty()) {
             files.add(URI.create(Paths.get("", javaPath).toString()));
         }
-        tsConfig.setFiles(files);
+        tsConfig.withFiles(files);
         try {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             FileUtil.writeToFile(tsConfigFile, gson.toJson(tsConfig, TsConfig.class).getBytes());
@@ -124,10 +113,6 @@ public class SourceTranslator {
     }
 
     private void visit(PsiJavaFile file) {
-        String outPath = this.outPath + File.separator + "src" + File.separator + "main";
-        String path = PathHelper.getPath(srcPath, outPath, file);
-        exports.add(path.substring(outPath.length()));
-
         ctx.setFile(file);
         file.acceptChildren(new PsiElementVisitor() {
             @Override
@@ -137,11 +122,34 @@ public class SourceTranslator {
                 }
             }
         });
-
-        this.javaClasses.addAll(ctx.needsJava());
     }
 
     private void visit(PsiElement elem) {
         System.out.println("Unknown file= "+elem);
+    }
+
+    private void initTsConfig() {
+        // compilerOptions
+        CompilerOptions compilerOptions = new CompilerOptions();
+        compilerOptions.setTarget(CompilerOptions.Target.ES_5);
+        compilerOptions.setModule(CompilerOptions.Module.COMMONJS);
+        compilerOptions.setModuleResolution(CompilerOptions.ModuleResolution.NODE);
+        compilerOptions.setExperimentalDecorators(true);
+        compilerOptions.setEmitDecoratorMetadata(true);
+        compilerOptions.setNoImplicitAny(true);
+        compilerOptions.setDeclaration(true);
+        compilerOptions.setRemoveComments(true);
+        compilerOptions.setPreserveConstEnums(true);
+        compilerOptions.setSuppressImplicitAnyIndexErrors(true);
+        compilerOptions.setOutDir(URI.create("built"));
+        tsConfig.setCompilerOptions(compilerOptions);
+    }
+
+    public JavaAnalyzer getAnalyzer() {
+        return this.analyzer;
+    }
+
+    public TsConfig getTsConfig() {
+        return this.tsConfig;
     }
 }
