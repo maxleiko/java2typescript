@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>java2ts-transpiler</artifactId>
+    <name>Java2Ts :: Transpiler</name>
+
+    <parent>
+        <groupId>org.kevoree.modeling</groupId>
+        <artifactId>java2ts-root</artifactId>
+        <version>48-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <properties>
+        <kmf.plugin.version>18</kmf.plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.kevoree.modeling.idea</groupId>
+            <artifactId>org.kevoree.modeling.idea.dsl</artifactId>
+            <version>${kmf.plugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kevoree.modeling</groupId>
+            <artifactId>org.kevoree.modeling.java2typescript.runtime</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.6.2</version>
+        </dependency>
+    </dependencies>
+
+</project>
