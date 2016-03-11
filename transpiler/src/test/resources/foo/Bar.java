@@ -3,9 +3,10 @@ package foo;
 public class Bar {
 
     /**
-     * @optional s
+     * @optional s i
+     * Swag lord
      */
-    public void test(String s) {
+    public void test(String s, int i) {
 
     }
 }

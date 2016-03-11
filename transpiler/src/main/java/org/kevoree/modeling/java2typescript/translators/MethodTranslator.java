@@ -56,13 +56,10 @@ public class MethodTranslator {
                 paramSB.append("...");
             }
             paramSB.append(parameter.getName());
+            if (docMeta.optional.contains(parameter.getName())) {
+                paramSB.append("?");
+            }
             paramSB.append(": ");
-//            if (parameter.getType() instanceof PsiClassReferenceType) {
-//                PsiElement resolution = ((PsiClassReferenceType) parameter.getType()).getReference().resolve();
-//                if (resolution != null) {
-//                    ImportHelper.importIfValid(resolution, ctx);
-//                }
-//            }
             paramSB.append(TypeHelper.printType(parameter.getType(), ctx));
             params.add(paramSB.toString());
         }

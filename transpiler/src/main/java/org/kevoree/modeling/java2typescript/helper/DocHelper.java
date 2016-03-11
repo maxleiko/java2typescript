@@ -1,9 +1,12 @@
 package org.kevoree.modeling.java2typescript.helper;
 
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import org.kevoree.modeling.java2typescript.metas.DocMeta;
 import org.kevoree.modeling.java2typescript.translators.DocTagTranslator;
+
+import java.util.Arrays;
 
 /**
  *
@@ -21,6 +24,13 @@ public class DocHelper {
                 }
                 if (tag.getName().equals(DocTagTranslator.IGNORE) && tag.getValueElement()!=null && tag.getValueElement().getText().equals(DocTagTranslator.TS)) {
                     metas.ignored = true;
+                }
+                if (tag.getName().equals(DocTagTranslator.OPTIONAL)) {
+                    for (PsiElement elem : tag.getDataElements()) {
+                        if (!elem.getText().contains(" ")) {
+                            metas.optional.add(elem.getText());
+                        }
+                    }
                 }
             }
         }

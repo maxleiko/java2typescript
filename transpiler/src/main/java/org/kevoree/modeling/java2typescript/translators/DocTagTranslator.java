@@ -35,8 +35,6 @@ public class DocTagTranslator {
                         ctx.print(trimmedLine).append("\n");
                     }
                 }
-            } else if (tag.getName().equals(OPTIONAL) && tag.getValueElement() != null) {
-                System.out.println("OPTIONAL> "+tag.getValueElement().getText());
             }
         }
     }
