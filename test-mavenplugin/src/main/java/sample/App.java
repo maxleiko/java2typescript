@@ -14,6 +14,10 @@ public class App {
         boolean[] boolArray = new boolean[1];
         String[] strArray = new String[2];
         MyClass[] myClassArray = new MyClass[5];
+        Foo<Integer>[] fooArray = new Foo[1];
+        Foo<App>[] fooAppArray = new Foo[1];
+
+        // private fooAppArray: sample.Foo<sample.App>[] = new Array<sample.Foo<sample.App>>(1)
 
         int[] array2 = new int[] { 42, 1664 };
         long[] longArray2 = new long[] { 42, 1664 };

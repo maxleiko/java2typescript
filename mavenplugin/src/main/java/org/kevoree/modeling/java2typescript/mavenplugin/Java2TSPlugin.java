@@ -56,15 +56,15 @@ public class Java2TSPlugin extends AbstractMojo {
 
         sourceTranslator.process();
 
-        for (Artifact a : project.getDependencyArtifacts()) {
-            File file = a.getFile();
-            if (file != null) {
-                if (file.isFile()) {
-                    String folderName = a.getGroupId() + "_" + a.getArtifactId() + "_" + a.getVersion();
-                    unzipArchive(tsConfig, file, Paths.get(target.toString(), "src", "deps", folderName).toFile());
-                }
-            }
-        }
+//        for (Artifact a : project.getDependencyArtifacts()) {
+//            File file = a.getFile();
+//            if (file != null) {
+//                if (file.isFile()) {
+//                    String folderName = a.getGroupId() + "_" + a.getArtifactId() + "_" + a.getVersion();
+//                    unzipArchive(tsConfig, file, Paths.get(target.toString(), "src", "deps", folderName).toFile());
+//                }
+//            }
+//        }
 
         sourceTranslator.generate();
     }

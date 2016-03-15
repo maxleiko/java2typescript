@@ -2,6 +2,7 @@
 package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.*;
+import org.kevoree.modeling.java2typescript.helper.GenericHelper;
 import org.kevoree.modeling.java2typescript.helper.ImportHelper;
 import org.kevoree.modeling.java2typescript.TranslationContext;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
@@ -92,7 +93,17 @@ public class NewExpressionTranslator {
                             ctx.append(")");
                         } else {
                             ctx.append("new Array<");
-                            ctx.append(TypeHelper.printType(element.getType(), ctx, true, false));
+                            if (element.getClassOrAnonymousClassReference() != null) {
+                                PsiJavaCodeReferenceElement ref = element.getClassOrAnonymousClassReference();
+                                if (ref.getReference() != null && ref.getReference().resolve() != null) {
+                                    PsiClass refClass = (PsiClass) ref.getReference().resolve();
+                                    GenericHelper.translate(refClass, element.getParent(), ctx);
+                                } else {
+                                    ctx.append(TypeHelper.printType(element.getType(), ctx, false, false));
+                                }
+                            } else {
+                                ctx.append(TypeHelper.printType(element.getType(), ctx, false, false));
+                            }
                             ctx.append(">(");
                             ExpressionTranslator.translate(element.getArrayDimensions()[0], ctx);
                             ctx.append(")");
