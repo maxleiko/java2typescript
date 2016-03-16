@@ -1,6 +1,7 @@
 package sample;
 
 /**
+ *
  * Created by leiko on 12/11/15.
  */
 public class Bar<T> {

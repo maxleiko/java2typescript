@@ -23,16 +23,18 @@ public class DocTagTranslator {
     public static void translate(PsiDocComment comment, TranslationContext ctx) {
         PsiDocTag[] tags = comment.getTags();
         for (PsiDocTag tag : tags) {
-            if (tag.getName().equals(NATIVE) && tag.getValueElement()!=null && tag.getValueElement().getText().equals(TS)) {
+            if (tag.getName().equals(NATIVE) && tag.getValueElement() != null && tag.getValueElement().getText().equals(TS)) {
                 String value = tag.getText();
                 String[] lines = value.split("\n");
                 for (String line : lines) {
                     String trimmedLine = line.trim();
-                    if (trimmedLine.length() > 0 && !trimmedLine.contains("@"+ NATIVE) && !trimmedLine.contains("@"+ IGNORE)) {
-                        if(trimmedLine.charAt(0) == '*'){
+                    if (trimmedLine.length() > 0 && !trimmedLine.contains("@" + NATIVE) && !trimmedLine.contains("@" + IGNORE)) {
+                        if (trimmedLine.charAt(0) == '*') {
                             trimmedLine = trimmedLine.substring(1);
                         }
-                        ctx.print(trimmedLine).append("\n");
+                        if (!trimmedLine.isEmpty()) {
+                            ctx.print(trimmedLine).append("\n");
+                        }
                     }
                 }
             }
