@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.*;
 import org.apache.commons.io.IOUtils;
-import org.kevoree.modeling.java2typescript.helper.PathHelper;
 import org.kevoree.modeling.java2typescript.json.tsconfig.CompilerOptions;
 import org.kevoree.modeling.java2typescript.json.tsconfig.TsConfig;
 import org.kevoree.modeling.java2typescript.translators.ClassTranslator;
@@ -15,9 +14,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class SourceTranslator {
 
@@ -103,13 +100,9 @@ public class SourceTranslator {
     }
 
     private void visit(PsiDirectory dir) {
-        ctx.print("export namespace ");
-        ctx.append(dir.getName());
-        ctx.append(" {\n");
-        ctx.increaseIdent();
+        ctx.enterPackage(dir.getName());
         dir.acceptChildren(visitor);
-        ctx.decreaseIdent();
-        ctx.print("}\n");
+        ctx.leavePackage();
     }
 
     private void visit(PsiJavaFile file) {

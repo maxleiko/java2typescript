@@ -12,21 +12,8 @@ import org.kevoree.modeling.java2typescript.metas.DocMeta;
 public class ClassTranslator {
 
     public static void translate(PsiClass clazz, TranslationContext ctx) {
-        boolean ignoreClass = false;
-        boolean nativeActivated = false;
-        PsiDocComment comment = clazz.getDocComment();
-        if (comment != null) {
-            PsiDocTag[] tags = comment.getTags();
-            for (PsiDocTag tag : tags) {
-                if (tag.getName().equals(DocTagTranslator.IGNORE) && tag.getValueElement() != null && tag.getValueElement().getText().equals(DocTagTranslator.TS)) {
-                    ignoreClass = true;
-                }
-                if (tag.getName().equals(DocTagTranslator.NATIVE) && tag.getValueElement() != null && tag.getValueElement().getText().equals(DocTagTranslator.TS)) {
-                    nativeActivated = true;
-                }
-            }
-        }
-        if (ignoreClass) {
+        DocMeta metas = DocHelper.process(clazz.getDocComment());
+        if (metas.ignored) {
             //we skip the class
             return;
         }
@@ -54,12 +41,12 @@ public class ClassTranslator {
         }
         ctx.append(" {\n");
 
-        if (!nativeActivated) {
-            printClassMembers(clazz, ctx);
-        } else {
+        if (metas.nativeActivated) {
             ctx.increaseIdent();
-            DocTagTranslator.translate(comment, ctx);
+            DocTagTranslator.translate(clazz.getDocComment(), ctx);
             ctx.decreaseIdent();
+        } else {
+            printClassMembers(clazz, ctx);
         }
 
         ctx.print("}\n");
@@ -116,9 +103,7 @@ public class ClassTranslator {
         }
         PsiMethod[] methods = clazz.getMethods();
         if (TypeHelper.isCallbackClass(clazz)) {
-            if(methods.length > 0){
-                MethodTranslator.translate(methods[0], ctx, true);
-            }
+            MethodTranslator.translate(methods[0], ctx, true);
         } else {
             for (PsiMethod method : methods) {
                 MethodTranslator.translate(method, ctx, false);

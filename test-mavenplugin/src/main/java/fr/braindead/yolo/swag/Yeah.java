@@ -9,5 +9,6 @@ public class Yeah {
 
     public Yeah() {
         Bar.bar();
+        fr.braindead.foo.Bar.bar();
     }
 }

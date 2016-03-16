@@ -26,6 +26,15 @@ export namespace lang {
             return this._buffer;
         }
     }
+    export class String {
+        static valueOf(data: any, offset?: number, count?: number): string {
+            if (typeof offset === 'undefined' && typeof count === 'undefined') {
+                return data+'';
+            } else {
+                return data.slice(offset, offset + count);
+            }
+        }
+    }
 }
 export namespace util {
     export namespace concurrent {

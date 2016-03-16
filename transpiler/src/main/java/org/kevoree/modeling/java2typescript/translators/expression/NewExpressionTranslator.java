@@ -13,24 +13,13 @@ public class NewExpressionTranslator {
     public static void translate(PsiNewExpression element, TranslationContext ctx) {
         PsiAnonymousClass anonymousClass = element.getAnonymousClass();
         if (anonymousClass != null) {
-//            PsiElement resolution = anonymousClass.getBaseClassReference().resolve();
-//            ImportHelper.importIfValid(resolution, ctx);
             AnonymousClassTranslator.translate(anonymousClass, ctx);
         } else {
             boolean arrayDefinition = false;
             PsiJavaCodeReferenceElement classReference = element.getClassReference();
             String className;
             if (classReference != null) {
-                PsiElement resolution = classReference.resolve();
                 className = TypeHelper.printType(element.getType(), ctx);
-
-                if (resolution != null) {
-//                    ImportHelper.importIfValid(resolution, ctx);
-                    String genName = ImportHelper.getGeneratedName(resolution, ctx);
-                    if (genName != null) {
-                        className = genName;
-                    }
-                }
             } else {
                 className = TypeHelper.printType(element.getType().getDeepComponentType(), ctx);
                 arrayDefinition = true;

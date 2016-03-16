@@ -32,6 +32,9 @@ public class DocHelper {
                         }
                     }
                 }
+                if (tag.getName().equals(DocTagTranslator.TS_CALLBACK)) {
+                    metas.functionType = true;
+                }
             }
         }
         return metas;

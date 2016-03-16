@@ -8,6 +8,7 @@ import com.intellij.psi.impl.source.PsiImmediateClassType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.metas.DocMeta;
 import org.kevoree.modeling.java2typescript.translators.DocTagTranslator;
 
 import java.math.BigDecimal;
@@ -80,8 +81,16 @@ public class TypeHelper {
                             if (referenceParameters.length > i) {
                                 // Support for the new Foo<>() Java8 construct.
                                 if (parent instanceof PsiNewExpression && referenceParameters[i] instanceof PsiImmediateClassType) {
-                                    PsiTypeElement resolvedGeneric = ((PsiField) ((PsiAssignmentExpression) parent.getParent()).getLExpression().getReference().resolve()).getTypeElement().getInnermostComponentReferenceElement().getParameterList().getTypeParameterElements()[i];
-                                    generics[i] = printType(resolvedGeneric.getType(), ctx);
+                                    if (parent.getParent() instanceof  PsiLocalVariable) {
+                                        PsiLocalVariable localVariable = (PsiLocalVariable) parent.getParent();
+                                        PsiType[] genericTypes = localVariable.getTypeElement().getInnermostComponentReferenceElement().getTypeParameters();
+                                        for (PsiType type: genericTypes) {
+                                            generics[i] = printType(type, ctx);
+                                        }
+                                    } else {
+                                        PsiTypeElement resolvedGeneric = ((PsiField) ((PsiAssignmentExpression) parent.getParent()).getLExpression().getReference().resolve()).getTypeElement().getInnermostComponentReferenceElement().getParameterList().getTypeParameterElements()[i];
+                                        generics[i] = printType(resolvedGeneric.getType(), ctx);
+                                    }
                                 } else {
                                     generics[i] = printType(referenceParameters[i], ctx);
                                 }
@@ -95,7 +104,6 @@ public class TypeHelper {
             } else {
                 String tryJavaUtil = javaTypes.get(elementClassRefType.getClassName());
                 if (tryJavaUtil != null) {
-//                    ctx.addImport("java", "java");
                     ctx.needsJava(tryJavaUtil);
                     result = tryJavaUtil;
                 } else {
@@ -132,33 +140,15 @@ public class TypeHelper {
         if (clazz == null) {
             return false;
         }
-        if (clazz.isInterface() &&
-                clazz.getAllFields().length == 0 &&
-                clazz.getAllMethods().length == 1) {
-            PsiDocComment comment = clazz.getDocComment();
-            if (comment != null) {
-                PsiDocTag[] tags = comment.getTags();
-                for (PsiDocTag tag : tags) {
-                    if (tag.getName().equals(DocTagTranslator.NATIVE) &&
-                            tag.getValueElement() != null &&
-                            tag.getValueElement().getText().equals(DocTagTranslator.TS_CALLBACK)) {
-                        return true;
-                    }
-                }
-            }
-        } else {
-            return false;
-        }
-
-        return false;
+        DocMeta metas = DocHelper.process(clazz.getDocComment());
+        return metas.functionType ||
+                (clazz.isInterface() && clazz.getAllFields().length == 0 && clazz.getAllMethods().length == 1);
     }
 
-    public static String primitiveStaticCall(String clazz) {
-        if (clazz.equals("String")) {
-            return "StringUtils";
-        }
+    public static String primitiveStaticCall(String clazz, TranslationContext ctx) {
         String result = javaTypes.get(clazz);
         if (result != null) {
+            ctx.needsJava(result);
             return result;
         }
         return clazz;
@@ -194,6 +184,7 @@ public class TypeHelper {
         javaTypes.put("Integer", "java.lang.Integer");
         javaTypes.put("Short", "java.lang.Short");
         javaTypes.put("Boolean", "java.lang.Boolean");
+        javaTypes.put("String", "java.lang.String");
         javaTypes.put("StringBuilder", "java.lang.StringBuilder");
 
         javaTypes.put("Throwable", "java.lang.Throwable");

@@ -15,7 +15,6 @@ public class LambaExpressionTranslator {
         for (int i=0; i < paramList.length; i++) {
             PsiParameter param = paramList[i];
             ctx.append(param.getName());
-//            System.out.println(param.getType());
             if (i < paramList.length - 1) {
                 ctx.append(", ");
             }
@@ -25,7 +24,6 @@ public class LambaExpressionTranslator {
         CodeBlockTranslator.translate((PsiCodeBlock) element.getBody(), ctx);
         ctx.decreaseIdent();
         ctx.print("}");
-//        ctx.append("throw new Error('Lambda expression are not handled')");
     }
 
 }

@@ -21,7 +21,7 @@ public class AnonymousClassTranslator {
             for (int i = 0; i < methodParameters.length; i++) {
                 methodParameters[i] = parameters[i].getName() + " : " + TypeHelper.printType(parameters[i].getTypeElement().getType(), ctx);
             }
-            ctx.append(" (" + String.join(", ", methodParameters) + ") => {\n");
+            ctx.append("(" + String.join(", ", methodParameters) + ") => {\n");
             if (method.getBody() != null) {
                 ctx.increaseIdent();
                 CodeBlockTranslator.translate(method.getBody(), ctx);
@@ -41,7 +41,7 @@ public class AnonymousClassTranslator {
         PsiMethod[] methods = element.getMethods();
         for (int i = 0; i < methods.length; i++) {
             ctx.print(methods[i].getName());
-            ctx.append(": function(");
+            ctx.append(": function (");
             printParameterList(methods[i], ctx);
             ctx.append(") {\n");
             if (methods[i].getBody() != null) {

@@ -23,6 +23,8 @@ public class TranslationContext {
     private Map<String, Set<String>> reverseImports = new HashMap<>();
     private Map<String, String> generatedNames = new HashMap<>();
     private Set<String> javaClasses = new HashSet<>();
+    private List<String> refPath = new ArrayList<>();
+    private List<String> pkgPaths = new ArrayList<>();
 
     public TranslationContext(PsiJavaFile file, String srcPath, String outPath) {
         this.file = file;
@@ -112,6 +114,18 @@ public class TranslationContext {
         return this.javaClasses;
     }
 
+    public void addToRefPath(String part) {
+        this.refPath.add(part);
+    }
+
+    public String getRefPath() {
+        return String.join(".", this.refPath);
+    }
+
+    public void cleanRefPath() {
+        this.refPath.clear();
+    }
+
     @Override
     public String toString() {
         if (!this.javaClasses.isEmpty()) {
@@ -174,5 +188,17 @@ public class TranslationContext {
             sb.append(' ');
         }
         return this;
+    }
+
+    public void enterPackage(String pkgName) {
+        this.print("export namespace ");
+        this.append(pkgName);
+        this.append(" {\n");
+        this.increaseIdent();
+    }
+
+    public void leavePackage() {
+        this.decreaseIdent();
+        this.print("}\n");
     }
 }

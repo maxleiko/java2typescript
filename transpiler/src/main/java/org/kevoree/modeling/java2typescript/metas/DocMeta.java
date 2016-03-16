@@ -11,5 +11,6 @@ public class DocMeta {
 
     public boolean nativeActivated = false;
     public boolean ignored = false;
+    public boolean functionType = false;
     public List<String> optional = new ArrayList<>();
 }

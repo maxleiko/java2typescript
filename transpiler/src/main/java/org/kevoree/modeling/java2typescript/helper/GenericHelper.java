@@ -37,7 +37,6 @@ public class GenericHelper {
             }
             type += "<"+String.join(", ", generics)+">";
         }
-        System.out.println("append> "+type);
         ctx.append(type);
     }
 }

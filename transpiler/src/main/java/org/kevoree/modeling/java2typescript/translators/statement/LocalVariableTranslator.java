@@ -29,22 +29,21 @@ public class LocalVariableTranslator {
 
         ctx.append(element.getName());
 
-        if (element.hasInitializer() && element.getInitializer() != null && element.getInitializer().getType() != null) {
-            if (!element.getType().toString().equals(element.getInitializer().getType().toString())) {
-                ctx.append(": ");
-//                ImportHelper.importIfValid(((PsiClassReferenceType) element.getType()).resolve(), ctx);
-                ctx.append(TypeHelper.printType(element.getType(), ctx));
-            }
+        // explicit local variable type
+        ctx.append(": ");
+        ctx.append(TypeHelper.printType(element.getType(), ctx));
+
+        if (element.hasInitializer() && element.getInitializer() != null) {
             ctx.append(" = ");
             ExpressionTranslator.translate(element.getInitializer(), ctx);
         }
 
         boolean listDecl = false;
         PsiElement next = element.getNextSibling();
-        while(next instanceof PsiWhiteSpace) {
+        while (next instanceof PsiWhiteSpace) {
             next = next.getNextSibling();
         }
-        if(next instanceof PsiJavaToken) {
+        if (next instanceof PsiJavaToken) {
             listDecl = true;
         }
 
