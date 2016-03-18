@@ -114,9 +114,10 @@ public class TranslationContext {
 
     @Override
     public String toString() {
+        System.out.println("JavaClasses? "+this.javaClasses.size());
         if (!this.javaClasses.isEmpty()) {
-            String javaImport = "import * as java from './java';\n";
-            sb.append(javaImport);
+            String javaImport = "import * as java from './java';\n\n";
+            sb.insert(0, javaImport);
 //            if (this.imports.isEmpty()) {
 //                sb.insert(0, javaImport+"\n");
 //            } else {
