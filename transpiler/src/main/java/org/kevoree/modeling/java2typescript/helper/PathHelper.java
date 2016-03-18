@@ -19,6 +19,10 @@ public class PathHelper {
         return outPath + dir.getVirtualFile().getPath().substring(srcPath.length());
     }
 
+    public static String getPath(String srcPath, String outPath, String dir) {
+        return outPath + dir.substring(srcPath.length());
+    }
+
     public static String getPath(TranslationContext ctx, PsiDirectory dir) {
         return getPath(ctx.getSrcPath(), ctx.getOutPath(), dir);
     }

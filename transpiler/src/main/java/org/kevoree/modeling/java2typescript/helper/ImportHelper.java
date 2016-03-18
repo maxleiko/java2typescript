@@ -14,31 +14,31 @@ import java.nio.file.Paths;
 public class ImportHelper {
 
     public static void importIfValid(PsiElement resolution, TranslationContext ctx) {
-        if (resolution != null) {
-            if (!ctx.getFile().getVirtualFile().getPath().equals(resolution.getContainingFile().getVirtualFile().getPath())) {
-                Path elemPath = Paths.get(ctx.getFile().getParent().getVirtualFile().getPath());
-                Path resolPath = Paths.get(resolution.getContainingFile().getVirtualFile().getPath());
-
-                String pathToResol = elemPath.relativize(resolPath).toString();
-                if (!pathToResol.isEmpty()) {
-                    ctx.addImport(((PsiClass) resolution).getName(), "./"+pathToResol.substring(0, pathToResol.lastIndexOf(".")));
-                }
-            }
-        }
+//        if (resolution != null) {
+//            if (!ctx.getFile().getVirtualFile().getPath().equals(resolution.getContainingFile().getVirtualFile().getPath())) {
+//                Path elemPath = Paths.get(ctx.getFile().getParent().getVirtualFile().getPath());
+//                Path resolPath = Paths.get(resolution.getContainingFile().getVirtualFile().getPath());
+//
+//                String pathToResol = elemPath.relativize(resolPath).toString();
+//                if (!pathToResol.isEmpty()) {
+//                    ctx.addImport(((PsiClass) resolution).getName(), "./"+pathToResol.substring(0, pathToResol.lastIndexOf(".")));
+//                }
+//            }
+//        }
     }
 
     public static String getGeneratedName(PsiElement resolution, TranslationContext ctx) {
-        if (resolution != null) {
-            if (!ctx.getFile().getVirtualFile().getPath().equals(resolution.getContainingFile().getVirtualFile().getPath())) {
-                Path elemPath = Paths.get(ctx.getFile().getParent().getVirtualFile().getPath());
-                Path resolPath = Paths.get(resolution.getContainingFile().getVirtualFile().getPath());
-
-                String pathToResol = elemPath.relativize(resolPath).toString();
-                if (!pathToResol.isEmpty()) {
-                    return ctx.getImportGeneratedName(((PsiClass) resolution).getName(), "./"+pathToResol.substring(0, pathToResol.lastIndexOf(".")));
-                }
-            }
-        }
+//        if (resolution != null) {
+//            if (!ctx.getFile().getVirtualFile().getPath().equals(resolution.getContainingFile().getVirtualFile().getPath())) {
+//                Path elemPath = Paths.get(ctx.getFile().getParent().getVirtualFile().getPath());
+//                Path resolPath = Paths.get(resolution.getContainingFile().getVirtualFile().getPath());
+//
+//                String pathToResol = elemPath.relativize(resolPath).toString();
+//                if (!pathToResol.isEmpty()) {
+//                    return ctx.getImportGeneratedName(((PsiClass) resolution).getName(), "./"+pathToResol.substring(0, pathToResol.lastIndexOf(".")));
+//                }
+//            }
+//        }
 
         return null;
     }

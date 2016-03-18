@@ -31,6 +31,10 @@ public class TsConfig {
     @Expose
     private List<URI> exclude = new ArrayList<URI>();
 
+    @SerializedName("filesGlob")
+    @Expose
+    private List<URI> filesGlob = new ArrayList<URI>();
+
     /**
      * Enable Compile-on-Save for this project.
      * 
@@ -38,6 +42,10 @@ public class TsConfig {
     @SerializedName("compileOnSave")
     @Expose
     private Boolean compileOnSave;
+
+    @SerializedName("atom")
+    @Expose
+    private Atom atom;
 
     /**
      * If no 'files' property is present in a tsconfig.json, the compiler defaults to including all files the containing directory and subdirectories. When a 'files' property is specified, only those files are included.
@@ -69,6 +77,19 @@ public class TsConfig {
 
     public TsConfig withFiles(List<URI> files) {
         this.files.addAll(files);
+        return this;
+    }
+
+    public List<URI> getFilesGlob() {
+        return filesGlob;
+    }
+
+    public void setFilesGlob(List<URI> files) {
+        this.filesGlob = files;
+    }
+
+    public TsConfig withFilesGlob(List<URI> files) {
+        this.filesGlob.addAll(files);
         return this;
     }
 
@@ -147,4 +168,7 @@ public class TsConfig {
         return this;
     }
 
+    public void setAtom(Atom atom) {
+        this.atom = atom;
+    }
 }

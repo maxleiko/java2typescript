@@ -17,19 +17,109 @@ import com.google.gson.annotations.SerializedName;
 public class CompilerOptions {
 
     /**
+     * Specify ECMAScript target version.
+     *
+     */
+    @SerializedName("target")
+    @Expose
+    private CompilerOptions.Target target = CompilerOptions.Target.fromValue("es3");
+
+    /**
+     * Specify module code generation: 'CommonJS', 'Amd', 'System', 'UMD', 'es6', or 'es2015'.
+     *
+     */
+    @SerializedName("module")
+    @Expose
+    private CompilerOptions.Module module;
+
+    /**
+     * Specifies module resolution strategy: 'node' (Node) or 'classic' (TypeScript pre 1.6) .
+     *
+     */
+    @SerializedName("moduleResolution")
+    @Expose
+    private CompilerOptions.ModuleResolution moduleResolution = CompilerOptions.ModuleResolution.fromValue("classic");
+
+    /**
+     * Unconditionally emit imports for unresolved files.
+     *
+     */
+    @SerializedName("isolatedModules")
+    @Expose
+    private Boolean isolatedModules;
+
+    /**
+     * Enables experimental support for ES7 decorators.
+     *
+     */
+    @SerializedName("experimentalDecorators")
+    @Expose
+    private Boolean experimentalDecorators;
+
+    /**
+     * Emit design-type metadata for decorated declarations in source.
+     *
+     */
+    @SerializedName("emitDecoratorMetadata")
+    @Expose
+    private Boolean emitDecoratorMetadata;
+
+    /**
+     * Generates corresponding d.ts files.
+     *
+     */
+    @SerializedName("declaration")
+    @Expose
+    private Boolean declaration;
+
+    /**
+     * Warn on expressions and declarations with an implied 'any' type.
+     *
+     */
+    @SerializedName("noImplicitAny")
+    @Expose
+    private Boolean noImplicitAny;
+
+    /**
+     * Do not emit comments to output.
+     *
+     */
+    @SerializedName("removeComments")
+    @Expose
+    private Boolean removeComments;
+
+    /**
+     * Do not include the default library file (lib.d.ts).
+     *
+     */
+    @SerializedName("noLib")
+    @Expose
+    private Boolean noLib;
+
+    /**
+     * Do not erase const enum declarations in generated code.
+     *
+     */
+    @SerializedName("preserveConstEnums")
+    @Expose
+    private Boolean preserveConstEnums;
+
+    /**
+     * Suppress noImplicitAny errors for indexing objects lacking index signatures.
+     *
+     */
+    @SerializedName("suppressImplicitAnyIndexErrors")
+    @Expose
+    private Boolean suppressImplicitAnyIndexErrors;
+
+    /**
      * The character set of the input files.
      * 
      */
     @SerializedName("charset")
     @Expose
     private String charset;
-    /**
-     * Generates corresponding d.ts files.
-     * 
-     */
-    @SerializedName("declaration")
-    @Expose
-    private Boolean declaration;
+
     /**
      * Show diagnostic information.
      * 
@@ -93,13 +183,7 @@ public class CompilerOptions {
     @SerializedName("mapRoot")
     @Expose
     private URI mapRoot;
-    /**
-     * Specify module code generation: 'CommonJS', 'Amd', 'System', 'UMD', 'es6', or 'es2015'.
-     * 
-     */
-    @SerializedName("module")
-    @Expose
-    private CompilerOptions.Module module;
+
     /**
      * Specifies the end of line sequence to be used when emitting files: 'CRLF' (dos) or 'LF' (unix).
      * 
@@ -128,20 +212,7 @@ public class CompilerOptions {
     @SerializedName("noEmitOnError")
     @Expose
     private Boolean noEmitOnError;
-    /**
-     * Warn on expressions and declarations with an implied 'any' type.
-     * 
-     */
-    @SerializedName("noImplicitAny")
-    @Expose
-    private Boolean noImplicitAny;
-    /**
-     * Do not include the default library file (lib.d.ts).
-     * 
-     */
-    @SerializedName("noLib")
-    @Expose
-    private Boolean noLib;
+
     /**
      *   Do not add triple-slash references or module import targets to the list of compiled files.
      * 
@@ -152,27 +223,7 @@ public class CompilerOptions {
     @SerializedName("skipDefaultLibCheck")
     @Expose
     private Boolean skipDefaultLibCheck;
-    /**
-     * Concatenate and emit output to single file.
-     * 
-     */
-    @SerializedName("outFile")
-    @Expose
-    private URI outFile;
-    /**
-     * Redirect output structure to the directory.
-     * 
-     */
-    @SerializedName("outDir")
-    @Expose
-    private URI outDir;
-    /**
-     * Do not erase const enum declarations in generated code.
-     * 
-     */
-    @SerializedName("preserveConstEnums")
-    @Expose
-    private Boolean preserveConstEnums;
+
     /**
      * Stylize errors and messages using color and context. (experimental)
      * 
@@ -180,13 +231,7 @@ public class CompilerOptions {
     @SerializedName("pretty")
     @Expose
     private Boolean pretty;
-    /**
-     * Do not emit comments to output.
-     * 
-     */
-    @SerializedName("removeComments")
-    @Expose
-    private Boolean removeComments;
+
     /**
      * Specifies the root directory of input files. Use to control the output directory structure with --outDir.
      * 
@@ -194,13 +239,7 @@ public class CompilerOptions {
     @SerializedName("rootDir")
     @Expose
     private URI rootDir;
-    /**
-     * Unconditionally emit imports for unresolved files.
-     * 
-     */
-    @SerializedName("isolatedModules")
-    @Expose
-    private Boolean isolatedModules;
+
     /**
      * Generates corresponding '.map' file.
      * 
@@ -222,13 +261,7 @@ public class CompilerOptions {
     @SerializedName("suppressExcessPropertyErrors")
     @Expose
     private Boolean suppressExcessPropertyErrors;
-    /**
-     * Suppress noImplicitAny errors for indexing objects lacking index signatures.
-     * 
-     */
-    @SerializedName("suppressImplicitAnyIndexErrors")
-    @Expose
-    private Boolean suppressImplicitAnyIndexErrors;
+
     /**
      * Do not emit declarations for code that has an '@internal' annotation.
      * 
@@ -236,13 +269,7 @@ public class CompilerOptions {
     @SerializedName("stripInternal")
     @Expose
     private Boolean stripInternal;
-    /**
-     * Specify ECMAScript target version.
-     * 
-     */
-    @SerializedName("target")
-    @Expose
-    private CompilerOptions.Target target = CompilerOptions.Target.fromValue("es3");
+
     /**
      * Watch input files.
      * 
@@ -250,27 +277,7 @@ public class CompilerOptions {
     @SerializedName("watch")
     @Expose
     private Boolean watch;
-    /**
-     * Enables experimental support for ES7 decorators.
-     * 
-     */
-    @SerializedName("experimentalDecorators")
-    @Expose
-    private Boolean experimentalDecorators;
-    /**
-     * Emit design-type metadata for decorated declarations in source.
-     * 
-     */
-    @SerializedName("emitDecoratorMetadata")
-    @Expose
-    private Boolean emitDecoratorMetadata;
-    /**
-     * Specifies module resolution strategy: 'node' (Node) or 'classic' (TypeScript pre 1.6) .
-     * 
-     */
-    @SerializedName("moduleResolution")
-    @Expose
-    private CompilerOptions.ModuleResolution moduleResolution = CompilerOptions.ModuleResolution.fromValue("classic");
+
     /**
      * Do not report errors on unused labels.
      * 
@@ -327,6 +334,22 @@ public class CompilerOptions {
     @SerializedName("noImplicitUseStrict")
     @Expose
     private Boolean noImplicitUseStrict;
+
+    /**
+     * Redirect output structure to the directory.
+     *
+     */
+    @SerializedName("outDir")
+    @Expose
+    private URI outDir;
+
+    /**
+     * Concatenate and emit output to single file.
+     *
+     */
+    @SerializedName("outFile")
+    @Expose
+    private URI outFile;
 
     /**
      * The character set of the input files.

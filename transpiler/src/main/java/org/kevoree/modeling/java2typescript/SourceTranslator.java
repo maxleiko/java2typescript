@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.*;
 import org.apache.commons.io.IOUtils;
+import org.kevoree.modeling.java2typescript.json.tsconfig.Atom;
 import org.kevoree.modeling.java2typescript.json.tsconfig.CompilerOptions;
 import org.kevoree.modeling.java2typescript.json.tsconfig.TsConfig;
 import org.kevoree.modeling.java2typescript.translators.ClassTranslator;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class SourceTranslator {
@@ -70,8 +73,10 @@ public class SourceTranslator {
     }
 
     public void generate() {
+        String[] testPath = new String[] { "src", "test", "test.ts" };
         String[] modelPath = new String[] { "src", "main", name+".ts" };
         String[] javaPath = new String[] { "src", "main", "java.ts"};
+        File testFile = Paths.get(outPath, testPath).toFile();
         File modelFile = Paths.get(outPath, modelPath).toFile();
         File javaFile = Paths.get(outPath, javaPath).toFile();
         try {
@@ -79,6 +84,7 @@ public class SourceTranslator {
                 FileUtil.writeToFile(javaFile, IOUtils.toByteArray(getClass().getResourceAsStream("/java.ts")));
             }
             FileUtil.writeToFile(modelFile, ctx.toString().getBytes());
+            FileUtil.writeToFile(testFile, "// TODO add some tests".getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -87,10 +93,12 @@ public class SourceTranslator {
         // files
         List<URI> files = new ArrayList<>();
         files.add(URI.create(Paths.get("", modelPath).toString()));
+        files.add(URI.create(Paths.get("", testPath).toString()));
         if (!ctx.needsJava().isEmpty()) {
             files.add(URI.create(Paths.get("", javaPath).toString()));
         }
         tsConfig.withFiles(files);
+        tsConfig.withFilesGlob(Collections.singletonList(URI.create(Paths.get("src", "**", "*.ts").toString())));
         try {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             FileUtil.writeToFile(tsConfigFile, gson.toJson(tsConfig, TsConfig.class).getBytes());
@@ -122,6 +130,7 @@ public class SourceTranslator {
     }
 
     private void initTsConfig() {
+        tsConfig.setCompileOnSave(true);
         // compilerOptions
         CompilerOptions compilerOptions = new CompilerOptions();
         compilerOptions.setTarget(CompilerOptions.Target.ES_5);
@@ -136,6 +145,10 @@ public class SourceTranslator {
         compilerOptions.setSuppressImplicitAnyIndexErrors(true);
         compilerOptions.setOutDir(URI.create("built"));
         tsConfig.setCompilerOptions(compilerOptions);
+        // atom
+        Atom atom = new Atom();
+        atom.setRewriteTsConfig(true);
+        tsConfig.setAtom(atom);
     }
 
     public JavaAnalyzer getAnalyzer() {
