@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.*;
-import org.apache.commons.io.IOUtils;
+import org.kevoree.modeling.java2typescript.json.packagejson.PackageJson;
 import org.kevoree.modeling.java2typescript.json.tsconfig.Atom;
 import org.kevoree.modeling.java2typescript.json.tsconfig.CompilerOptions;
 import org.kevoree.modeling.java2typescript.json.tsconfig.TsConfig;
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +27,7 @@ public class SourceTranslator {
     private PsiElementVisitor visitor;
     private TranslationContext ctx;
     private TsConfig tsConfig;
+    private PackageJson pkgJson;
 
     public SourceTranslator(String srcPath, String outPath, String name) {
         this.analyzer = new JavaAnalyzer();
@@ -36,7 +36,9 @@ public class SourceTranslator {
         this.name = name;
         this.ctx = new TranslationContext(null, srcPath, outPath);
         this.tsConfig = new TsConfig();
+        this.pkgJson = new PackageJson();
         initTsConfig();
+        initPackageJson();
         this.visitor = new PsiElementVisitor() {
             @Override
             public void visitElement(PsiElement element) {
@@ -75,14 +77,9 @@ public class SourceTranslator {
     public void generate() {
         String[] testPath = new String[] { "src", "test", "test.ts" };
         String[] modelPath = new String[] { "src", "main", name+".ts" };
-        String[] javaPath = new String[] { "src", "main", "java.ts"};
         File testFile = Paths.get(outPath, testPath).toFile();
         File modelFile = Paths.get(outPath, modelPath).toFile();
-        File javaFile = Paths.get(outPath, javaPath).toFile();
         try {
-            if (!ctx.needsJava().isEmpty()) {
-                FileUtil.writeToFile(javaFile, IOUtils.toByteArray(getClass().getResourceAsStream("/java.ts")));
-            }
             FileUtil.writeToFile(modelFile, ctx.toString().getBytes());
             FileUtil.writeToFile(testFile, "// TODO add some tests".getBytes());
         } catch (IOException e) {
@@ -90,18 +87,20 @@ public class SourceTranslator {
         }
 
         File tsConfigFile = Paths.get(outPath, "tsconfig.json").toFile();
+        File pkgJsonFile = Paths.get(outPath, "package.json").toFile();
         // files
         List<URI> files = new ArrayList<>();
         files.add(URI.create(Paths.get("", modelPath).toString()));
         files.add(URI.create(Paths.get("", testPath).toString()));
         if (!ctx.needsJava().isEmpty()) {
-            files.add(URI.create(Paths.get("", javaPath).toString()));
+            pkgJson.addDependency("java2ts-java", "*");
         }
         tsConfig.withFiles(files);
         tsConfig.withFilesGlob(Collections.singletonList(URI.create(Paths.get("src", "**", "*.ts").toString())));
         try {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             FileUtil.writeToFile(tsConfigFile, gson.toJson(tsConfig, TsConfig.class).getBytes());
+            FileUtil.writeToFile(pkgJsonFile, gson.toJson(pkgJson, PackageJson.class).getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -127,6 +126,12 @@ public class SourceTranslator {
 
     private void visit(PsiElement elem) {
         System.out.println("Unknown file= "+elem);
+    }
+
+    private void initPackageJson() {
+        pkgJson.setName(name);
+        pkgJson.setMain(Paths.get("built", "main", name).toString());
+        pkgJson.setTypings(Paths.get("built", "main", name+".d.ts").toString());
     }
 
     private void initTsConfig() {
@@ -157,5 +162,9 @@ public class SourceTranslator {
 
     public TsConfig getTsConfig() {
         return this.tsConfig;
+    }
+
+    public PackageJson getPkgJson() {
+        return this.pkgJson;
     }
 }

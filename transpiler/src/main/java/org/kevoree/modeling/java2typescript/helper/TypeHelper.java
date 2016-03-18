@@ -141,8 +141,7 @@ public class TypeHelper {
             return false;
         }
         DocMeta metas = DocHelper.process(clazz.getDocComment());
-        return metas.functionType ||
-                (clazz.isInterface() && clazz.getAllFields().length == 0 && clazz.getAllMethods().length == 1);
+        return metas.functionType;
     }
 
     public static String primitiveStaticCall(String clazz, TranslationContext ctx) {
