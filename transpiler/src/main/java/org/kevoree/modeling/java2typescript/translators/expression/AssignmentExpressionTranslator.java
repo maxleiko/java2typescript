@@ -12,6 +12,11 @@ public class AssignmentExpressionTranslator {
         JavaTokenTranslator.translate(element.getOperationSign(), ctx);
         ctx.append(' ');
         ExpressionTranslator.translate(element.getRExpression(), ctx);
+        if (element.getRExpression() != null &&
+                element.getRExpression().getType() != null &&
+                element.getRExpression().getType().getPresentableText().equals("char")) {
+            ctx.append(".charCodeAt(0)");
+        }
     }
 
 }

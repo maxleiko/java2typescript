@@ -3,14 +3,15 @@ package foo;
 public class Bar {
 
     public void test() {
-        Callback<String> callback = new Callback<String>() {
-            @Override
-            public void on(String o) {
-                System.out.println("On> "+o);
-            }
-        }
+        byte b = '|';
+        byte b1 = getChar();
+        byte b2 = 42;
+        byte b3 = -15;
+        byte b4;
+        b4 = 'b';
+    }
 
-        callback.on("foo");
-        String.valueOf(false);
+    public char getChar() {
+        return "foo".charAt(0);
     }
 }

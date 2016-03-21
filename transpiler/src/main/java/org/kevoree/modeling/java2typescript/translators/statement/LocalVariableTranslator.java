@@ -36,6 +36,9 @@ public class LocalVariableTranslator {
         if (element.hasInitializer() && element.getInitializer() != null) {
             ctx.append(" = ");
             ExpressionTranslator.translate(element.getInitializer(), ctx);
+            if (element.getInitializer().getType() != null && element.getInitializer().getType().getPresentableText().equals("char")) {
+                ctx.append(".charCodeAt(0)");
+            }
         }
 
         boolean listDecl = false;
