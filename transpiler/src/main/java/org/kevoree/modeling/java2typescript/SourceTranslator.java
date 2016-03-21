@@ -72,6 +72,10 @@ public class SourceTranslator {
 
         PsiDirectory root = analyzer.analyze(srcFolder);
         root.acceptChildren(visitor);
+
+        if (!ctx.needsJava().isEmpty()) {
+            pkgJson.addDependency("java2ts-java", "*");
+        }
     }
 
     public void generate() {
@@ -92,9 +96,7 @@ public class SourceTranslator {
         List<URI> files = new ArrayList<>();
         files.add(URI.create(Paths.get("", modelPath).toString()));
         files.add(URI.create(Paths.get("", testPath).toString()));
-        if (!ctx.needsJava().isEmpty()) {
-            pkgJson.addDependency("java2ts-java", "*");
-        }
+
         tsConfig.withFiles(files);
         tsConfig.withFilesGlob(Collections.singletonList(URI.create(Paths.get("src", "**", "*.ts").toString())));
         try {
@@ -132,6 +134,8 @@ public class SourceTranslator {
         pkgJson.setName(name);
         pkgJson.setMain(Paths.get("built", "main", name).toString());
         pkgJson.setTypings(Paths.get("built", "main", name+".d.ts").toString());
+        pkgJson.addDevDependency("typescript", "1.8.9");
+        pkgJson.addScript("build", "node node_modules/.bin/tsc");
     }
 
     private void initTsConfig() {

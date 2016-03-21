@@ -48,15 +48,22 @@
                 <configuration>
                     <name>dummy-lib</name>
                     <packageVersion>0.1.0-alpha</packageVersion>
+                    <dependencies>
+                        <dependency>
+                            <name>java2ts-java</name>
+                            <version>file:///tmp/java</version>
+                        </dependency>
+                    </dependencies>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.22</version>
+                <version>0.0.29</version>
 
                 <configuration>
                     <workingDirectory>${project.build.directory}/generated-sources/java2ts</workingDirectory>
+                    <installDirectory>${project.build.directory}/frontend-plugin/</installDirectory>
                 </configuration>
 
                 <executions>
@@ -105,11 +112,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>typescript-maven-plugin</id>
-            <url>https://raw.github.com/ppedregal/typescript-maven-plugin/master/repo</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
