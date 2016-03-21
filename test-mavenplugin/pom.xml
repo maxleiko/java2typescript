@@ -42,20 +42,58 @@
                     <execution>
                         <goals>
                             <goal>java2ts</goal>
-                            <goal>tsc</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
                     <name>dummy-lib</name>
                     <packageVersion>0.1.0-alpha</packageVersion>
-                    <dependencies>
-                        <dependency>
-                            <name>kmf</name>
-                            <version>${kmf.version}</version>
-                        </dependency>
-                    </dependencies>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>0.0.22</version>
+
+                <configuration>
+                    <workingDirectory>${project.build.directory}/generated-sources/java2ts</workingDirectory>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v4.4.0</nodeVersion>
+                            <npmVersion>3.3.12</npmVersion>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm install</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm run build</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -91,6 +91,10 @@ public class PackageJson {
     @Expose
     private String main;
 
+    @SerializedName("scripts")
+    @Expose
+    private Map<String, String> scripts = new HashMap<String, String>();
+
     @SerializedName("bin")
     @Expose
     private Map<String, URI> bin = new HashMap<String, URI>();
@@ -173,14 +177,6 @@ public class PackageJson {
     @SerializedName("bundledDependency")
     @Expose
     private List<String> bundledDependency = new ArrayList<String>();
-
-    /**
-     * Dependencies are specified with a simple hash of package name to version range. The version range is a string which has one or more space-separated descriptors. Dependencies can also be identified with a tarball or git URL.
-     *
-     */
-    @SerializedName("dependency")
-    @Expose
-    private Map<String, String> dependency;
 
     /**
      * The name of the package.
@@ -539,5 +535,13 @@ public class PackageJson {
 
     public void setTypings(String typings) {
         this.typings = typings;
+    }
+
+    public void addScript(String key, String cmd) {
+        this.scripts.put(key, cmd);
+    }
+
+    public void addDevDependency(String name, String version) {
+        this.devDependencies.put(name, version);
     }
 }

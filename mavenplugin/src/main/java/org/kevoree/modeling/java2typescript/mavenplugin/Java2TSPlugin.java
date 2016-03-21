@@ -46,6 +46,8 @@ public class Java2TSPlugin extends AbstractMojo {
         PackageJson pkgJson = sourceTranslator.getPkgJson();
         pkgJson.setName(packageName);
         pkgJson.setVersion(packageVersion);
+        pkgJson.addDevDependency("typescript", "1.8.9");
+        pkgJson.addScript("build", "node node_modules/.bin/tsc");
 
         for (Dependency dep : dependencies) {
             pkgJson.addDependency(dep.getName(), dep.getVersion());
