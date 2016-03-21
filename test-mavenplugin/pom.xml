@@ -42,6 +42,7 @@
                     <execution>
                         <goals>
                             <goal>java2ts</goal>
+                            <goal>tsc</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -66,4 +67,11 @@
             </plugin>
         </plugins>
     </build>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>typescript-maven-plugin</id>
+            <url>https://raw.github.com/ppedregal/typescript-maven-plugin/master/repo</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
