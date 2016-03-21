@@ -40,31 +40,7 @@ public class NewExpressionTranslator {
                 ctx.append(')');
             } else {
                 if (arrayInitializer != null) {
-                    boolean hasToBeClosed;
-                    if (ctx.NATIVE_ARRAY && element.getType().equalsToText("int[]")) {
-                        ctx.append("new Int32Array([");
-                        hasToBeClosed = true;
-                    } else if (ctx.NATIVE_ARRAY && element.getType().equalsToText("double[]")) {
-                        ctx.append("new Float64Array([");
-                        hasToBeClosed = true;
-                    } else if (ctx.NATIVE_ARRAY && element.getType().equalsToText("long[]")) {
-                        ctx.append("new Float64Array([");
-                        hasToBeClosed = true;
-                    } else {
-                        ctx.append("[");
-                        hasToBeClosed = false;
-                    }
-                    PsiExpression[] arrayInitializers = arrayInitializer.getInitializers();
-                    for (int i = 0; i < arrayInitializers.length; i++) {
-                        ExpressionTranslator.translate(arrayInitializers[i], ctx);
-                        if (i != arrayInitializers.length - 1) {
-                            ctx.append(", ");
-                        }
-                    }
-                    ctx.append("]");
-                    if (hasToBeClosed) {
-                        ctx.append(")");
-                    }
+                    ArrayInitializerExpressionTranslator.translate(arrayInitializer, ctx);
                 } else {
                     int dimensionCount = arrayDimensions.length;
                     if (ctx.NATIVE_ARRAY && dimensionCount == 1) {
