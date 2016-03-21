@@ -1,4 +1,4 @@
-package fr.braindead;
+package foo;
 
 
 /**

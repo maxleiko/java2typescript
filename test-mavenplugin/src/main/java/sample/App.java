@@ -1,12 +1,13 @@
 package sample;
 
-import fr.braindead.MyClass;
+import foo.SomeClass;
+import foo.MyClass;
 
 import java.util.*;
 
 public class App {
     public App() {
-        fr.braindead.SomeClass o = new fr.braindead.SomeClass();
+        SomeClass o = new SomeClass();
         org.kevoree.SomeClass o2 = new org.kevoree.SomeClass();
         List<String> l = new ArrayList<>();
         int[] array = new int[1];

@@ -1,6 +1,6 @@
-package fr.braindead;
+package foo;
 
-import fr.braindead.foo.Bar;
+import foo.foo.Bar;
 
 /**
  *

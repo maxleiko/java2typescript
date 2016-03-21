@@ -9,7 +9,7 @@ public class Bar<T> {
     private Foo<String> foo;
     private int[] intArray = new int[42];
     private boolean[] boolArray = new boolean[42];
-    private fr.braindead.Foo[] fooArray;
+    private foo.Foo[] fooArray;
     private Bar<T>[] bArr = new Bar[10];
 
     public Bar() {

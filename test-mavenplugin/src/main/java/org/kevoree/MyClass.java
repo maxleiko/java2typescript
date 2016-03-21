@@ -1,6 +1,6 @@
 package org.kevoree;
 
-import fr.braindead.MyInterface;
+import foo.MyInterface;
 import org.kevoree.modeling.KCallback;
 
 /**

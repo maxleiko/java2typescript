@@ -1,5 +1,6 @@
 package org.kevoree.modeling.java2typescript;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.intellij.openapi.util.io.FileUtil;
@@ -21,7 +22,7 @@ import java.util.List;
 public class SourceTranslator {
 
     private JavaAnalyzer analyzer;
-    private String srcPath;
+    private List<String> srcPaths;
     private String outPath;
     private String name;
     private PsiElementVisitor visitor;
@@ -30,11 +31,15 @@ public class SourceTranslator {
     private PackageJson pkgJson;
 
     public SourceTranslator(String srcPath, String outPath, String name) {
+        this(Lists.newArrayList(srcPath), outPath, name);
+    }
+
+    public SourceTranslator(List<String> srcPaths, String outPath, String name) {
         this.analyzer = new JavaAnalyzer();
-        this.srcPath = srcPath;
+        this.srcPaths = new ArrayList<>(srcPaths);
         this.outPath = outPath;
         this.name = name;
-        this.ctx = new TranslationContext(null, srcPath, outPath);
+        this.ctx = new TranslationContext();
         this.tsConfig = new TsConfig();
         this.pkgJson = new PackageJson();
         initTsConfig();
@@ -55,8 +60,9 @@ public class SourceTranslator {
         };
     }
 
-    public void process() {
-        File srcFolder = new File(this.srcPath);
+    private void process(String srcPath) {
+        ctx.setSrcPath(srcPath);
+        File srcFolder = new File(srcPath);
         if (srcFolder.exists()) {
             if (srcFolder.isFile()) {
                 throw new IllegalArgumentException("Source path is not a directory");
@@ -76,6 +82,10 @@ public class SourceTranslator {
         if (!ctx.needsJava().isEmpty()) {
             pkgJson.addDependency("java2ts-java", "*");
         }
+    }
+
+    public void process() {
+        this.srcPaths.forEach(this::process);
     }
 
     public void generate() {

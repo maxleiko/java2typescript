@@ -1,12 +1,12 @@
 package org.kevoree;
 
-import fr.braindead.MyInterface;
+import foo.*;
 
 /**
  *
  * Created by leiko on 06/11/15.
  */
-public class SomeClass extends fr.braindead.MyClass implements MyInterface {
+public class SomeClass extends foo.MyClass implements MyInterface {
 
     @Override
     public void foo() {

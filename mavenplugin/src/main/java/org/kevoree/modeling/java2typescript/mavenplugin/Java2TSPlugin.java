@@ -15,6 +15,7 @@ import org.kevoree.modeling.java2typescript.json.packagejson.PackageJson;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mojo(name = "java2ts", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class Java2TSPlugin extends AbstractMojo {
@@ -24,6 +25,9 @@ public class Java2TSPlugin extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.basedir}/src/main/java")
     protected File source;
+
+    @Parameter()
+    protected List<File> sources = new ArrayList<>();
 
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/java2ts")
     protected File target;
@@ -42,7 +46,15 @@ public class Java2TSPlugin extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        SourceTranslator sourceTranslator = new SourceTranslator(source.getPath(), target.getPath(), name);
+        List<String> sources = new ArrayList<>();
+        if (sources.isEmpty()) {
+            sources.add(source.getAbsolutePath());
+        } else {
+            sources.addAll(this.sources.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+        }
+
+        SourceTranslator sourceTranslator = new SourceTranslator(sources, target.getPath(), name);
+
         PackageJson pkgJson = sourceTranslator.getPkgJson();
 
         for (Artifact a : project.getDependencyArtifacts()) {

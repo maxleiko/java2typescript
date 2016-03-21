@@ -13,15 +13,9 @@ public class TranslationContext {
     private StringBuilder sb = new StringBuilder();
     private int indent = 0;
     private PsiJavaFile file;
+    private Set<String> javaClasses = new HashSet<>();
     private String srcPath;
     private String outPath;
-    private Set<String> javaClasses = new HashSet<>();
-
-    public TranslationContext(PsiJavaFile file, String srcPath, String outPath) {
-        this.file = file;
-        this.srcPath = srcPath;
-        this.outPath = outPath;
-    }
 
     public void increaseIdent() {
         indent += indentSize;
@@ -46,6 +40,10 @@ public class TranslationContext {
         return this;
     }
 
+    public void setSrcPath(String srcPath) {
+        this.srcPath = srcPath;
+    }
+
     public void setFile(PsiJavaFile file) {
         this.file = file;
     }
@@ -62,10 +60,6 @@ public class TranslationContext {
     public TranslationContext append(char c) {
         sb.append(c);
         return this;
-    }
-
-    public String getSrcPath() {
-        return srcPath;
     }
 
     public void needsJava(String clazz) {
@@ -86,10 +80,6 @@ public class TranslationContext {
         return sb.toString();
     }
 
-    public String getOutPath() {
-        return outPath;
-    }
-
     private TranslationContext indent() {
         for (int i = 0; i < indent; i++) {
             sb.append(' ');
@@ -107,5 +97,13 @@ public class TranslationContext {
     public void leavePackage() {
         this.decreaseIdent();
         this.print("}\n");
+    }
+
+    public String getSrcPath() {
+        return srcPath;
+    }
+
+    public String getOutPath() {
+        return outPath;
     }
 }
