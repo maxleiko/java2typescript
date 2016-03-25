@@ -1,17 +1,36 @@
 package org.kevoree.modeling.java2typescript;
 
-import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 public class SourceTranslatorTest {
 
-    public static void main(String[] args) {
-        String source = Paths.get("transpiler", "src", "test", "resources").toAbsolutePath().toString();
-        String source2 = Paths.get("test-mavenplugin", "src", "main", "java").toAbsolutePath().toString();
-        String target = Paths.get("transpiler", "target", "generated-sources", "java2ts").toAbsolutePath().toString();
-        SourceTranslator translator = new SourceTranslator(Lists.newArrayList(source, source2), target, "foo");
+    @Test
+    public void generics() throws IOException {
+        String source = Paths.get("src", "test", "java", "sources", "generics").toAbsolutePath().toString();
+        String target = Paths.get("target", "generated-sources", "java2ts").toAbsolutePath().toString();
+
+        SourceTranslator translator = new SourceTranslator(source, target, "generics");
         translator.process();
-        translator.generate();
+        Assert.assertEquals(
+                FileUtils.readFileToString(Paths.get("src", "test", "resources", "generics", "output.ts").toFile()).trim(),
+                translator.getCtx().toString().trim());
+    }
+
+    @Test
+    public void strings() throws IOException {
+        String source = Paths.get("src", "test", "java", "sources", "strings").toAbsolutePath().toString();
+        String target = Paths.get("target", "generated-sources", "java2ts").toAbsolutePath().toString();
+
+        SourceTranslator translator = new SourceTranslator(source, target, "strings");
+        translator.addPackageTransform("sources.strings", "");
+        translator.process();
+        Assert.assertEquals(
+                FileUtils.readFileToString(Paths.get("src", "test", "resources", "strings", "output.ts").toFile()).trim(),
+                translator.getCtx().toString().trim());
     }
 }

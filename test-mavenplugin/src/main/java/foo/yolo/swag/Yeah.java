@@ -1,6 +1,6 @@
 package foo.yolo.swag;
 
-import foo.foo.Bar;
+import foo.Bar;
 
 /**
  * Created by leiko on 20/11/15.

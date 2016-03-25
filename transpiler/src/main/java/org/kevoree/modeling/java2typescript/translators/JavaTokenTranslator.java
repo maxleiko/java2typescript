@@ -3,7 +3,7 @@ package org.kevoree.modeling.java2typescript.translators;
 
 import com.intellij.psi.PsiJavaToken;
 import com.intellij.psi.impl.source.tree.ElementType;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 
 public class JavaTokenTranslator {
 

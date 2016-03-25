@@ -1,11 +1,7 @@
 package org.kevoree.modeling.java2typescript.helper;
 
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import org.kevoree.modeling.java2typescript.TranslationContext;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 
 /**
  *

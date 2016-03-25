@@ -2,7 +2,8 @@ package org.kevoree.modeling.java2typescript.translators;
 
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiTypeParameter;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
+import org.kevoree.modeling.java2typescript.helper.KeywordHelper;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 
 /**
@@ -11,24 +12,22 @@ import org.kevoree.modeling.java2typescript.helper.TypeHelper;
  */
 public class TypeParametersTranslator {
 
-    public static void translate(PsiTypeParameter[] parameters, TranslationContext ctx) {
-        if (parameters.length > 0) {
-            ctx.append('<');
-            for (int i = 0; i < parameters.length; i++) {
-                PsiTypeParameter p = parameters[i];
-                ctx.append(p.getName());
-                PsiClassType[] extentions = p.getExtendsList().getReferencedTypes();
-                if (extentions.length > 0) {
-                    ctx.append(" extends ");
-                    for (PsiClassType ext : extentions) {
-                        ctx.append(TypeHelper.printType(ext, ctx));
-                    }
-                }
-                if (i != parameters.length - 1) {
-                    ctx.append(", ");
+    public static String print(PsiTypeParameter[] parameters, TranslationContext ctx) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < parameters.length; i++) {
+            PsiTypeParameter p = parameters[i];
+            builder.append(p.getName());
+            PsiClassType[] extensions = p.getExtendsList().getReferencedTypes();
+            if (extensions.length > 0) {
+                builder.append(" extends ");
+                for (PsiClassType ext : extensions) {
+                    builder.append(TypeHelper.printType(ext, ctx));
                 }
             }
-            ctx.append('>');
+            if (i != parameters.length - 1) {
+                builder.append(", ");
+            }
         }
+        return builder.toString();
     }
 }

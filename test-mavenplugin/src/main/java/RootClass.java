@@ -11,5 +11,6 @@ public class RootClass {
 
     public static void main(String[] args) {
         RootClass c = new RootClass();
+        org.kevoree.modeling.KCallback<Void> cb = null;
     }
 }

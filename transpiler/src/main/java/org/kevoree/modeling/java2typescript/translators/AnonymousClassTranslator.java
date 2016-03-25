@@ -3,8 +3,8 @@ package org.kevoree.modeling.java2typescript.translators;
 
 import com.google.common.base.*;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.compiled.ClsMethodImpl;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
+import org.kevoree.modeling.java2typescript.helper.KeywordHelper;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 
 import java.util.*;
@@ -19,7 +19,7 @@ public class AnonymousClassTranslator {
             PsiParameter[] parameters = method.getParameterList().getParameters();
             String[] methodParameters = new String[parameters.length];
             for (int i = 0; i < methodParameters.length; i++) {
-                methodParameters[i] = parameters[i].getName() + " : " + TypeHelper.printType(parameters[i].getTypeElement().getType(), ctx);
+                methodParameters[i] = KeywordHelper.process(parameters[i].getName(), ctx) + " : " + TypeHelper.printType(parameters[i].getTypeElement().getType(), ctx);
             }
             ctx.append("(" + String.join(", ", methodParameters) + ") => {\n");
             if (method.getBody() != null) {
@@ -66,7 +66,7 @@ public class AnonymousClassTranslator {
             if (parameter.isVarArgs()) {
                 paramSB.append("...");
             }
-            paramSB.append(parameter.getName());
+            paramSB.append(KeywordHelper.process(parameter.getName(), ctx));
             paramSB.append(": ");
             paramSB.append(TypeHelper.printType(parameter.getType(), ctx));
             params.add(paramSB.toString());

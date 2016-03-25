@@ -2,9 +2,9 @@
 package org.kevoree.modeling.java2typescript.translators;
 
 import com.intellij.psi.*;
-import com.intellij.psi.impl.source.PsiClassReferenceType;
 import org.kevoree.modeling.java2typescript.helper.DocHelper;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
+import org.kevoree.modeling.java2typescript.helper.KeywordHelper;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.metas.DocMeta;
 import org.kevoree.modeling.java2typescript.translators.expression.ExpressionListTranslator;
@@ -57,12 +57,6 @@ public class FieldTranslator {
             ExpressionTranslator.translate(element.getInitializer(), ctx);
             ctx.append(";\n");
         } else {
-            /*
-            if (TypeHelper.isPrimitiveField(element)) {
-                ctx.append(" = 0");
-            } else {
-                ctx.append(" = null");
-            }*/
             ctx.append(";\n");
         }
     }

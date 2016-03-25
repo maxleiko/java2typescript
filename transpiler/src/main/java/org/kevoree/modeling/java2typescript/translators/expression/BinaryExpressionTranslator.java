@@ -2,7 +2,7 @@
 package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.PsiBinaryExpression;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 import org.kevoree.modeling.java2typescript.translators.JavaTokenTranslator;
 
 public class BinaryExpressionTranslator {

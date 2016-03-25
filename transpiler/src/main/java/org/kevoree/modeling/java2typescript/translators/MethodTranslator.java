@@ -1,12 +1,16 @@
 package org.kevoree.modeling.java2typescript.translators;
 
 import com.intellij.psi.*;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 import org.kevoree.modeling.java2typescript.helper.DocHelper;
+import org.kevoree.modeling.java2typescript.helper.KeywordHelper;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.metas.DocMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -24,6 +28,8 @@ public class MethodTranslator {
 
         PsiModifierList modifierList = method.getModifierList();
         PsiClass containingClass = (PsiClass) method.getParent();
+        ArrayList<String> paramGenParamTypeName = new ArrayList<>();
+        ctx.setGenericParameterNames(paramGenParamTypeName);
         if (method.isConstructor()) {
             ctx.print("constructor");
         } else {
@@ -43,9 +49,48 @@ public class MethodTranslator {
                 ctx.append("abstract ");
             }
             if (!isAnonymous) {
-                ctx.append(method.getName());
+                ctx.append(KeywordHelper.process(method.getName(), ctx));
             }
-            TypeParametersTranslator.translate(method.getTypeParameters(), ctx);
+            HashSet<String> usedGenerics = new HashSet<>();
+            PsiTypeParameter[] parameters = method.getTypeParameters();
+            for (PsiTypeParameter parameter : parameters) {
+                usedGenerics.add(parameter.getName());
+            }
+            String genericParams = TypeParametersTranslator.print(method.getTypeParameters(), ctx);
+            if (!genericParams.isEmpty()) {
+                genericParams = "<" + genericParams;
+            }
+            for (int i=0; i < method.getParameterList().getParameters().length; i++) {
+                PsiParameter param = method.getParameterList().getParameters()[i];
+                if (param.getType() instanceof PsiClassReferenceType) {
+                    PsiClassReferenceType paramClassRef = (PsiClassReferenceType) param.getType();
+                    if (paramClassRef.getParameters().length > 0) {
+                        // param has generic params
+                        for (PsiType paramGenParamType : paramClassRef.getParameters()) {
+                            if (paramGenParamType instanceof PsiWildcardType) {
+                                if (((PsiWildcardType) paramGenParamType).getBound() != null) {
+                                    if (!genericParams.isEmpty()) {
+                                        genericParams += ", ";
+                                    } else {
+                                        genericParams = "<";
+                                    }
+                                    String genType = TypeHelper.availableGenericType(usedGenerics);
+                                    usedGenerics.add(genType);
+                                    paramGenParamTypeName.add(i, genType);
+                                    genericParams += genType +
+                                            " extends " +
+                                            TypeHelper.printType(((PsiWildcardType) paramGenParamType).getBound(), ctx);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!genericParams.isEmpty()) {
+                genericParams += ">";
+            }
+            ctx.append(genericParams);
         }
         ctx.append('(');
         List<String> params = new ArrayList<>();
@@ -55,12 +100,13 @@ public class MethodTranslator {
             if (parameter.isVarArgs()) {
                 paramSB.append("...");
             }
-            paramSB.append(parameter.getName());
+            paramSB.append(KeywordHelper.process(parameter.getName(), ctx));
             if (docMeta.optional.contains(parameter.getName())) {
                 paramSB.append("?");
             }
             paramSB.append(": ");
-            paramSB.append(TypeHelper.printType(parameter.getType(), ctx));
+
+            paramSB.append(TypeHelper.printType(parameter.getType(), ctx, false, true));
             params.add(paramSB.toString());
         }
         ctx.append(String.join(", ", params));
@@ -95,5 +141,6 @@ public class MethodTranslator {
         } else {
             ctx.append(";\n");
         }
+        ctx.removeGenericParameterNames();
     }
 }

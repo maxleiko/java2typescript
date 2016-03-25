@@ -2,18 +2,17 @@
 package org.kevoree.modeling.java2typescript.helper;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
-import com.intellij.psi.impl.source.PsiImmediateClassType;
-import com.intellij.psi.javadoc.PsiDocComment;
-import com.intellij.psi.javadoc.PsiDocTag;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import com.sun.org.apache.xpath.internal.SourceTree;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 import org.kevoree.modeling.java2typescript.metas.DocMeta;
-import org.kevoree.modeling.java2typescript.translators.DocTagTranslator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 public class TypeHelper {
@@ -22,16 +21,12 @@ public class TypeHelper {
         return printType(element, ctx, true, false);
     }
 
+
     public static String printType(PsiType element, TranslationContext ctx, boolean withGenericParams, boolean avoidNativeOptim) {
         String result = element.getPresentableText();
 
         if (result.equals("Throwable") || result.equals("Exception") || result.equals("RuntimeException") || result.equals("IndexOutOfBoundsException")) {
             return "Error";
-        }
-
-        if (result.contains("?")) {
-            System.out.println("TypeHelper: <?> converted to <any> for "+ element.getPresentableText()+" in "+PathHelper.lastPart(ctx));
-            return "any";
         }
 
         if (objects.contains(result) || classes.contains(result)) {
@@ -69,71 +64,45 @@ public class TypeHelper {
         } else if (element instanceof PsiClassReferenceType) {
             PsiClassReferenceType elementClassRefType = ((PsiClassReferenceType) element);
             PsiClass resolvedClass = elementClassRefType.resolve();
-            if (resolvedClass != null) {
-                result = resolvedClass.getQualifiedName();
-                if (withGenericParams) {
-                    PsiTypeParameter[] typeParameters = resolvedClass.getTypeParameters();
-                    PsiType[] referenceParameters = elementClassRefType.getParameters();
-                    if (typeParameters.length > 0) {
-                        String[] generics = new String[typeParameters.length];
-                        PsiElement parent = elementClassRefType.getReference().getElement().getParent();
-                        for (int i = 0; i < typeParameters.length; i++) {
-                            if (referenceParameters.length > i) {
-                                // Support for the new Foo<>() Java8 construct.
-                                if (parent instanceof PsiNewExpression && referenceParameters[i] instanceof PsiImmediateClassType) {
-                                    if (parent.getParent() instanceof  PsiLocalVariable) {
-                                        PsiLocalVariable localVariable = (PsiLocalVariable) parent.getParent();
-                                        PsiType[] genericTypes = localVariable.getTypeElement().getInnermostComponentReferenceElement().getTypeParameters();
-                                        for (PsiType type: genericTypes) {
-                                            generics[i] = printType(type, ctx);
-                                        }
-                                    } else {
-                                        PsiTypeElement resolvedGeneric = ((PsiField) ((PsiAssignmentExpression) parent.getParent()).getLExpression().getReference().resolve()).getTypeElement().getInnermostComponentReferenceElement().getParameterList().getTypeParameterElements()[i];
-                                        generics[i] = printType(resolvedGeneric.getType(), ctx);
-                                    }
-                                } else {
-                                    generics[i] = printType(referenceParameters[i], ctx);
-                                }
-                            } else {
-                                generics[i] = "any";
-                            }
-                        }
-                        result += "<" + String.join(", ", generics) + ">";
-                    }
-                }
+            if (((PsiClassReferenceType) element).getClassName().startsWith("Class")) {
+                // "Class" concept does not exists in TypeScript => any
+                result = "any";
             } else {
-                String tryJavaUtil = javaTypes.get(elementClassRefType.getClassName());
-                if (tryJavaUtil != null) {
-                    ctx.needsJava(tryJavaUtil);
-                    result = tryJavaUtil;
-                } else {
-                    result = elementClassRefType.getReference().getQualifiedName();
-                }
-                if (withGenericParams) {
-                    if (elementClassRefType.getParameterCount() > 0) {
-                        String[] generics = new String[elementClassRefType.getParameterCount()];
-                        PsiType[] genericTypes = elementClassRefType.getParameters();
-                        for (int i = 0; i < genericTypes.length; i++) {
-                            generics[i] = printType(genericTypes[i], ctx);
-                        }
-                        result += "<" + String.join(", ", generics) + ">";
+                if (resolvedClass != null) {
+                    if (resolvedClass.getQualifiedName() == null) {
+                        result = resolvedClass.getName();
                     } else {
-                        if (((PsiClassReferenceType) element).getReference().getText().contains("<")) {
-                            result += "<any>";
-                        }
+                        result = resolvedClass.getQualifiedName();
+                        result += GenericHelper.process(elementClassRefType, ctx, withGenericParams);
                     }
+                } else {
+                    String tryJavaUtil = javaTypes.get(elementClassRefType.getClassName());
+                    if (tryJavaUtil != null) {
+                        ctx.needsJava(tryJavaUtil);
+                        result = tryJavaUtil;
+                    } else {
+                        result = elementClassRefType.getReference().getQualifiedName();
+                    }
+                    result += GenericHelper.process(elementClassRefType, ctx, withGenericParams);
                 }
             }
+        } else if (element instanceof PsiWildcardType) {
+            PsiType bound = ((PsiWildcardType) element).getBound();
+            if (bound != null) {
+                result = "T";
+            } else {
+                result = "any";
+            }
         } else {
-            System.out.println("TypeHelper: unhandled type -> " + element.getClass());
+            System.out.println("TypeHelper: unhandled type -> " + element);
         }
 
-        if (result == null || result.equals("null")) {
+        if (result.equals("null")) {
             // this is kind of desperate but well...
             result = element.getPresentableText();
         }
 
-        return result;
+        return ctx.packageTransform(result);
     }
 
     public static boolean isCallbackClass(PsiClass clazz) {
@@ -150,7 +119,7 @@ public class TypeHelper {
             ctx.needsJava(result);
             return result;
         }
-        return clazz;
+        return KeywordHelper.process(clazz, ctx);
     }
 
 
@@ -176,6 +145,8 @@ public class TypeHelper {
         javaTypes.put("ArrayList", "java.util.ArrayList");
         javaTypes.put("LinkedList", "java.util.LinkedList");
         javaTypes.put("Random", "java.util.Random");
+        javaTypes.put("Iterator", "java.util.Iterator");
+        javaTypes.put("ListIterator", "java.util.ListIterator");
 
         javaTypes.put("Long", "java.lang.Long");
         javaTypes.put("Double", "java.lang.Double");
@@ -212,7 +183,9 @@ public class TypeHelper {
             BigInteger.class.getName(),
             BigInteger.class.getSimpleName(),
             BigDecimal.class.getName(),
-            BigDecimal.class.getSimpleName()
+            BigDecimal.class.getSimpleName(),
+            Number.class.getName(),
+            Number.class.getSimpleName()
     );
 
     public static final Set<String> strings = ImmutableSet.of(
@@ -238,4 +211,27 @@ public class TypeHelper {
             Class.class.getName(),
             Class.class.getSimpleName()
     );
+
+    private static final String genericLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public static String availableGenericType(HashSet<String> usedGenerics) {
+        if (usedGenerics.isEmpty()) {
+            return "A";
+        } else {
+            return availableGenericType(usedGenerics, 0);
+        }
+    }
+
+    private static String availableGenericType(HashSet<String> usedGenerics, int count) {
+        if (count == genericLetters.length() - 1) {
+            throw new UnsupportedOperationException("Unable to find a suitable generic type character");
+        } else {
+            String genType = genericLetters.substring(count, count+1);
+            if (!usedGenerics.contains(genType)) {
+                return genType;
+            } else {
+                return availableGenericType(usedGenerics, count+1);
+            }
+        }
+    }
 }

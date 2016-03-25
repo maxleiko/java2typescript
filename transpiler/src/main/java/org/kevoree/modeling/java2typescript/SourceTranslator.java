@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.*;
+import org.kevoree.modeling.java2typescript.context.ModuleImport;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 import org.kevoree.modeling.java2typescript.json.packagejson.PackageJson;
 import org.kevoree.modeling.java2typescript.json.tsconfig.Atom;
 import org.kevoree.modeling.java2typescript.json.tsconfig.CompilerOptions;
@@ -137,7 +139,7 @@ public class SourceTranslator {
     }
 
     private void visit(PsiElement elem) {
-        System.out.println("Unknown file= "+elem);
+        System.out.println("Ignored file= "+elem);
     }
 
     private void initPackageJson() {
@@ -170,8 +172,8 @@ public class SourceTranslator {
         tsConfig.setAtom(atom);
     }
 
-    public JavaAnalyzer getAnalyzer() {
-        return this.analyzer;
+    public void addToClasspath(String path) {
+        this.analyzer.addClasspath(path);
     }
 
     public TsConfig getTsConfig() {
@@ -180,5 +182,22 @@ public class SourceTranslator {
 
     public PackageJson getPkgJson() {
         return this.pkgJson;
+    }
+
+    public void addModuleImport(ModuleImport moduleImport) {
+        ctx.addModuleImport(moduleImport);
+    }
+
+    public void addPackageTransform(String initialName, String newName) {
+        ctx.addPackageTransform(initialName, newName);
+    }
+
+    /**
+     * Useful for tests
+     * (you should not mess with this unless you know what you are doing)
+     * @return ctx TranslationContext
+     */
+    protected TranslationContext getCtx() {
+        return this.ctx;
     }
 }

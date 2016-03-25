@@ -1,7 +1,7 @@
 package org.kevoree.modeling.java2typescript.translators;
 
 import com.intellij.psi.javadoc.*;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 
 /**
  * Created by gregory.nain on 08/01/15.

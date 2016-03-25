@@ -2,17 +2,11 @@ package org.kevoree.modeling.java2typescript;
 
 import com.intellij.core.JavaCoreApplicationEnvironment;
 import com.intellij.core.JavaCoreProjectEnvironment;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiManager;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  *
@@ -23,13 +17,7 @@ public class JavaAnalyzer {
     private JavaCoreProjectEnvironment environment;
 
     public JavaAnalyzer() {
-        environment = new JavaCoreProjectEnvironment(new Disposable() {
-            @Override
-            public void dispose() {}
-        }, new JavaCoreApplicationEnvironment(new Disposable() {
-            @Override
-            public void dispose() {}
-        }));
+        environment = new JavaCoreProjectEnvironment(() -> {}, new JavaCoreApplicationEnvironment(() -> {}));
     }
 
     public void addClasspath(String filePath) {
@@ -37,35 +25,11 @@ public class JavaAnalyzer {
     }
 
     public PsiDirectory analyze(File srcDir) {
-        VirtualFile root_vf = environment.getEnvironment().getLocalFileSystem().findFileByIoFile(srcDir);
-        environment.addSourcesToClasspath(root_vf);
-        try {
-            Files.walkFileTree(srcDir.toPath(), new FileVisitor<Path>() {
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    VirtualFile vf = environment.getEnvironment().getLocalFileSystem().findFileByIoFile(file.toFile());
-                    environment.addSourcesToClasspath(vf);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
+        VirtualFile vf = environment.getEnvironment().getLocalFileSystem().findFileByIoFile(srcDir);
+        if (vf != null) {
+            environment.addSourcesToClasspath(vf);
+            return PsiManager.getInstance(environment.getProject()).findDirectory(vf);
         }
-        return PsiManager.getInstance(environment.getProject()).findDirectory(root_vf);
+        return null;
     }
-
 }

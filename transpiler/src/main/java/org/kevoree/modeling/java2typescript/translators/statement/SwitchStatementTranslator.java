@@ -2,7 +2,7 @@
 package org.kevoree.modeling.java2typescript.translators.statement;
 
 import com.intellij.psi.PsiSwitchStatement;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 import org.kevoree.modeling.java2typescript.translators.CodeBlockTranslator;
 import org.kevoree.modeling.java2typescript.translators.expression.ExpressionTranslator;
 

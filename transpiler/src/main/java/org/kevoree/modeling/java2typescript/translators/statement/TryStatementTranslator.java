@@ -3,7 +3,8 @@ package org.kevoree.modeling.java2typescript.translators.statement;
 
 import com.intellij.psi.PsiCatchSection;
 import com.intellij.psi.PsiTryStatement;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
+import org.kevoree.modeling.java2typescript.helper.KeywordHelper;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.translators.CodeBlockTranslator;
 
@@ -26,7 +27,7 @@ public class TryStatementTranslator {
                 String exceptionType = TypeHelper.printType(catchSection.getCatchType(), ctx);
                 ctx.print("if (").append(EXCEPTION_VAR).append(" instanceof ").append(exceptionType).append(") {\n");
                 ctx.increaseIdent();
-                ctx.print("var ").append(catchSection.getParameter().getName());
+                ctx.print("var ").append(KeywordHelper.process(catchSection.getParameter().getName(), ctx));
                 ctx.append(": ").append(exceptionType).append(" = <").append(exceptionType).append(">").append(EXCEPTION_VAR).append(";\n");
                 CodeBlockTranslator.translate(catchSection.getCatchBlock(), ctx);
                 ctx.decreaseIdent();

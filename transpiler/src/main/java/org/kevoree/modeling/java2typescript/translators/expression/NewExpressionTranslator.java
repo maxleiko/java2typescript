@@ -3,8 +3,7 @@ package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.*;
 import org.kevoree.modeling.java2typescript.helper.GenericHelper;
-import org.kevoree.modeling.java2typescript.helper.ImportHelper;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 import org.kevoree.modeling.java2typescript.translators.AnonymousClassTranslator;
 
@@ -33,11 +32,17 @@ public class NewExpressionTranslator {
                 arrayDefinition = true;
             }
             if (!arrayDefinition) {
-                ctx.append("new ").append(className).append('(');
-                if (element.getArgumentList() != null) {
-                    ExpressionListTranslator.translate(element.getArgumentList(), ctx);
+                if (className.equals("string")) {
+                    if (element.getArgumentList() != null) {
+                        ExpressionListTranslator.translate(element.getArgumentList(), ctx);
+                    }
+                } else {
+                    ctx.append("new ").append(className).append('(');
+                    if (element.getArgumentList() != null) {
+                        ExpressionListTranslator.translate(element.getArgumentList(), ctx);
+                    }
+                    ctx.append(')');
                 }
-                ctx.append(')');
             } else {
                 if (arrayInitializer != null) {
                     ArrayInitializerExpressionTranslator.translate(arrayInitializer, ctx);
@@ -62,7 +67,7 @@ public class NewExpressionTranslator {
                                 PsiJavaCodeReferenceElement ref = element.getClassOrAnonymousClassReference();
                                 if (ref.getReference() != null && ref.getReference().resolve() != null) {
                                     PsiClass refClass = (PsiClass) ref.getReference().resolve();
-                                    GenericHelper.translate(refClass, element.getParent(), ctx);
+                                    ctx.append(GenericHelper.process(refClass));
                                 } else {
                                     ctx.append(TypeHelper.printType(element.getType(), ctx, false, false));
                                 }

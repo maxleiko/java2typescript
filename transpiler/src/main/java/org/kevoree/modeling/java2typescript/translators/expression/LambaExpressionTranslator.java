@@ -4,7 +4,8 @@ package org.kevoree.modeling.java2typescript.translators.expression;
 import com.intellij.psi.PsiCodeBlock;
 import com.intellij.psi.PsiLambdaExpression;
 import com.intellij.psi.PsiParameter;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
+import org.kevoree.modeling.java2typescript.helper.KeywordHelper;
 import org.kevoree.modeling.java2typescript.translators.CodeBlockTranslator;
 
 public class LambaExpressionTranslator {
@@ -14,7 +15,7 @@ public class LambaExpressionTranslator {
         PsiParameter[] paramList = element.getParameterList().getParameters();
         for (int i=0; i < paramList.length; i++) {
             PsiParameter param = paramList[i];
-            ctx.append(param.getName());
+            ctx.append(KeywordHelper.process(param.getName(), ctx));
             if (i < paramList.length - 1) {
                 ctx.append(", ");
             }

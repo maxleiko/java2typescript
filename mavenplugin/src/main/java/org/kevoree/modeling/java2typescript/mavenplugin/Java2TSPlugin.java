@@ -10,11 +10,14 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.kevoree.modeling.java2typescript.SourceTranslator;
+import org.kevoree.modeling.java2typescript.context.ModuleImport;
 import org.kevoree.modeling.java2typescript.json.packagejson.PackageJson;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Mojo(name = "java2ts", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
@@ -41,8 +44,14 @@ public class Java2TSPlugin extends AbstractMojo {
     @Parameter(defaultValue = "${project.version}")
     private String packageVersion;
 
-    @Parameter()
+    @Parameter
     private List<Dependency> dependencies = new ArrayList<Dependency>();
+
+    @Parameter
+    private List<ModuleImport> moduleImports = new ArrayList<ModuleImport>();
+
+    @Parameter
+    private Map<String, String> pkgTransforms = new HashMap<String, String>();
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -54,6 +63,8 @@ public class Java2TSPlugin extends AbstractMojo {
         }
 
         SourceTranslator sourceTranslator = new SourceTranslator(sources, target.getPath(), name);
+        moduleImports.forEach(sourceTranslator::addModuleImport);
+        pkgTransforms.forEach(sourceTranslator::addPackageTransform);
 
         PackageJson pkgJson = sourceTranslator.getPkgJson();
 
@@ -61,7 +72,7 @@ public class Java2TSPlugin extends AbstractMojo {
             File file = a.getFile();
             if (file != null) {
                 if (file.isFile()) {
-                    sourceTranslator.getAnalyzer().addClasspath(file.getAbsolutePath());
+                    sourceTranslator.addToClasspath(file.getAbsolutePath());
                     getLog().info(file.getAbsolutePath() + " added to Java2TS analyzer");
                 }
             }

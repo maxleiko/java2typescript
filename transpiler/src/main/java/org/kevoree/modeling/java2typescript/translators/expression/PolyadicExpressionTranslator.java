@@ -4,7 +4,7 @@ package org.kevoree.modeling.java2typescript.translators.expression;
 import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiJavaToken;
 import com.intellij.psi.PsiPolyadicExpression;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 import org.kevoree.modeling.java2typescript.translators.JavaTokenTranslator;
 
 public class PolyadicExpressionTranslator {

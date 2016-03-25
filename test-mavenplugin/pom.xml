@@ -54,54 +54,65 @@
                             <version>file:///tmp/java</version>
                         </dependency>
                     </dependencies>
+                    <moduleImports>
+                        <moduleImport>
+                            <name>kmf</name>
+                            <properties>
+                                <org>kmf</org>
+                            </properties>
+                        </moduleImport>
+                    </moduleImports>
+                    <pkgTransforms>
+                        <org.kevoree.modeling>kmf.kevoree.modeling</org.kevoree.modeling>
+                    </pkgTransforms>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.29</version>
+            <!--<plugin>-->
+                <!--<groupId>com.github.eirslett</groupId>-->
+                <!--<artifactId>frontend-maven-plugin</artifactId>-->
+                <!--<version>0.0.29</version>-->
 
-                <configuration>
-                    <workingDirectory>${project.build.directory}/generated-sources/java2ts</workingDirectory>
-                    <installDirectory>${project.build.directory}/frontend-plugin/</installDirectory>
-                </configuration>
+                <!--<configuration>-->
+                    <!--<workingDirectory>${project.build.directory}/generated-sources/java2ts</workingDirectory>-->
+                    <!--<installDirectory>${project.build.directory}/frontend-plugin/</installDirectory>-->
+                <!--</configuration>-->
 
-                <executions>
-                    <execution>
-                        <id>install node and npm</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>v4.4.0</nodeVersion>
-                            <npmVersion>3.3.12</npmVersion>
-                        </configuration>
-                    </execution>
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>install node and npm</id>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>install-node-and-npm</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<nodeVersion>v4.4.0</nodeVersion>-->
+                            <!--<npmVersion>3.3.12</npmVersion>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
 
-                    <execution>
-                        <id>npm install</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>install</arguments>
-                        </configuration>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<id>npm install</id>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>npm</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<arguments>install</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
 
-                    <execution>
-                        <id>npm run build</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run build</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+                    <!--<execution>-->
+                        <!--<id>npm run build</id>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>npm</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<arguments>run build</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

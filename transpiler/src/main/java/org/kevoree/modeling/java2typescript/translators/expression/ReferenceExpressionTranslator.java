@@ -2,7 +2,7 @@
 package org.kevoree.modeling.java2typescript.translators.expression;
 
 import com.intellij.psi.*;
-import org.kevoree.modeling.java2typescript.TranslationContext;
+import org.kevoree.modeling.java2typescript.context.TranslationContext;
 import org.kevoree.modeling.java2typescript.helper.TypeHelper;
 
 public class ReferenceExpressionTranslator {
@@ -24,14 +24,7 @@ public class ReferenceExpressionTranslator {
             } else {
                 ExpressionTranslator.translate(element.getQualifierExpression(), ctx);
             }
-            if (resolution instanceof PsiMethod) {
-                PsiMethod method = (PsiMethod) resolution;
-                if (!TypeHelper.isCallbackClass(method.getContainingClass())) {
-                    result += ".";
-                }
-            } else {
-                result += ".";
-            }
+            result += ".";
         } else {
             if (resolution != null) {
                 String qualifier = "this";
@@ -52,18 +45,12 @@ public class ReferenceExpressionTranslator {
                 }
             }
         }
-        if (resolution instanceof PsiMethod) {
-            PsiMethod method = (PsiMethod) resolution;
-            if (!TypeHelper.isCallbackClass(method.getContainingClass())) {
-                result += element.getReferenceName();
-            }
+
+        String type = TypeHelper.primitiveStaticCall(element.getReferenceName(), ctx);
+        if (!result.isEmpty() && type.startsWith(result)) {
+            result = type;
         } else {
-            String type = TypeHelper.primitiveStaticCall(element.getReferenceName(), ctx);
-            if (!result.isEmpty() && type.startsWith(result)) {
-                result = type;
-            } else {
-                result += type;
-            }
+            result += type;
         }
 
         if (appendToCtx) {

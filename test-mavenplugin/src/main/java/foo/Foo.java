@@ -1,7 +1,5 @@
 package foo;
 
-import foo.foo.Bar;
-
 /**
  *
  * Created by leiko on 12/11/15.
